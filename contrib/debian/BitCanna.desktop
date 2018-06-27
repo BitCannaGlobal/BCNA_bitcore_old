@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=BitCanna
+Comment=BitCanna P2P Cryptocurrency
+Exec=bitcanna-qt %u
+Terminal=false
+Type=Application
+Icon=bitcanna128
+MimeType=x-scheme-handler/bitcanna;
+Categories=Office;Finance;
+Name[en_AU]=BitCanna

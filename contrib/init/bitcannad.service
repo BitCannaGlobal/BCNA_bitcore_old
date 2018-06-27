@@ -1,0 +1,26 @@
+[Unit]
+Description=BCNA's distributed currency daemon
+After=network.target
+
+[Service]
+User=bitcanna
+Group=bitcanna
+
+Type=forking
+PIDFile=/var/lib/bitcannad/bitcannad.pid
+
+ExecStart=/usr/bin/bitcannad -daemon -pid=/var/lib/bitcannad/bitcannad.pid \
+          -conf=/etc/bitcanna/bitcanna.conf -datadir=/var/lib/bitcannad
+
+ExecStop=-/usr/bin/bitcanna-cli -conf=/etc/bitcanna/bitcanna.conf \
+         -datadir=/var/lib/bitcannad stop
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

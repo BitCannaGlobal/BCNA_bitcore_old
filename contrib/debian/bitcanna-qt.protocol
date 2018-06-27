@@ -1,0 +1,11 @@
+[Protocol]
+exec=bitcanna-qt '%u'
+protocol=bitcanna
+input=none
+output=none
+helper=true
+listing=
+reading=false
+writing=false
+makedir=false
+deleting=false

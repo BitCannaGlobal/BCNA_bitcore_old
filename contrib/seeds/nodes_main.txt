@@ -1,0 +1,4 @@
+#ipv4
+#official
+195.201.1.230:12700	#dnsseed.srv0.sysoev.pw:12700
+

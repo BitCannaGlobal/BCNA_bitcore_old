@@ -1,0 +1,17 @@
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource prefix="/translations">
+        <file alias="ca">locale/bitcanna_ca.qm</file>
+        <file alias="da">locale/bitcanna_da.qm</file>
+        <file alias="de">locale/bitcanna_de.qm</file>
+        <file alias="en">locale/bitcanna_en.qm</file>
+        <file alias="en_US">locale/bitcanna_en_US.qm</file>
+        <file alias="es">locale/bitcanna_es.qm</file>
+        <file alias="fr_FR">locale/bitcanna_fr_FR.qm</file>
+        <file alias="it">locale/bitcanna_it.qm</file>
+        <file alias="ja">locale/bitcanna_ja.qm</file>
+        <file alias="pt">locale/bitcanna_pt.qm</file>
+        <file alias="ro_RO">locale/bitcanna_ro_RO.qm</file>
+        <file alias="ru">locale/bitcanna_ru.qm</file>
+        <file alias="zh_TW">locale/bitcanna_zh_TW.qm</file>
+    </qresource>
+</RCC>

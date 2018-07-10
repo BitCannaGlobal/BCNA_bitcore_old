@@ -130,6 +130,13 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet) : QDialog(paren
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     mapper->setOrientation(Qt::Vertical);
 
+    delete ui->horizontalLayout_4_Main;
+    delete ui->horizontalLayout;
+    ui->resetButton->setVisible(false);
+//    ui->label->setVisible(false);
+//    ui->darksendRounds->setVisible(false);
+
+
     /* setup/change UI elements when proxy IP is invalid/valid */
     connect(this, SIGNAL(proxyIpChecks(QValidatedLineEdit*, int)), this, SLOT(doProxyIpChecks(QValidatedLineEdit*, int)));
 }

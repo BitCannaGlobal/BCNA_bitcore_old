@@ -639,13 +639,22 @@ https://www.transifex.com/bitcanna-project/bitcanna-project-translations</string
     <layout class="QHBoxLayout" name="horizontalLayout_Buttons">
      <item>
       <widget class="QPushButton" name="resetButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="toolTip">
         <string>Reset all client options to default.</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>&amp;Reset Options</string>
        </property>
        <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+       <property name="flat">
         <bool>false</bool>
        </property>
       </widget>

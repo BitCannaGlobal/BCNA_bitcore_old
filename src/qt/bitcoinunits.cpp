@@ -20,7 +20,7 @@ QList<BitcoinUnits::Unit> BitcoinUnits::availableUnits()
 {
     QList<BitcoinUnits::Unit> unitlist;
     unitlist.append(BCNA);
-//    unitlist.append(mBCNA);
+//    unitlist.append(BCNA2);
 //    unitlist.append(uBCNA);
     return unitlist;
 }
@@ -29,7 +29,7 @@ bool BitcoinUnits::valid(int unit)
 {
     switch (unit) {
     case BCNA:
-//    case mBCNA:
+    case BCNA2:
 //    case uBCNA:
         return true;
     default:
@@ -42,8 +42,8 @@ QString BitcoinUnits::id(int unit)
     switch (unit) {
     case BCNA:
         return QString("bitcanna");
-//    case mBCNA:
-//        return QString("mbitcanna");
+    case BCNA2:
+        return QString("bitcanna2");
 //    case uBCNA:
 //        return QString::fromUtf8("ubitcanna");
     default:
@@ -57,8 +57,8 @@ QString BitcoinUnits::name(int unit)
         switch (unit) {
         case BCNA:
             return QString("BCNA");
-//        case mBCNA:
-//            return QString("mBCNA");
+        case BCNA2:
+            return QString("BCNA2");
 //        case uBCNA:
 //            return QString::fromUtf8("μBCNA");
         default:
@@ -84,8 +84,8 @@ QString BitcoinUnits::description(int unit)
         switch (unit) {
         case BCNA:
             return QString("BCNA");
-//        case mBCNA:
-//            return QString("Milli-BCNA (1 / 1" THIN_SP_UTF8 "000)");
+        case BCNA2:
+            return QString("BCNA 2-digits)");
 //        case uBCNA:
 //            return QString("Micro-BCNA (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
         default:
@@ -109,6 +109,7 @@ qint64 BitcoinUnits::factor(int unit)
 {
     switch (unit) {
     case BCNA:
+    case BCNA2:
         return 100000000;
 //    case mBCNA:
 //        return 100000;
@@ -124,6 +125,8 @@ int BitcoinUnits::decimals(int unit)
     switch (unit) {
     case BCNA:
         return 8;
+    case BCNA2:
+        return 2;
 //    case mBCNA:
 //        return 5;
 //    case uBCNA:

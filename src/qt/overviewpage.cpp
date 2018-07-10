@@ -23,10 +23,14 @@
 #include <QSettings>
 #include <QTimer>
 #include <QGraphicsDropShadowEffect>
+#include <QMargins>
 
 #define DECORATION_SIZE 35
 #define ICON_OFFSET 16
-#define NUM_ITEMS 5
+#define NUM_ITEMS 4
+#define ROW_SPACING 30
+#define CORRECTION 20
+#define BORDER_RADIUS 10
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
@@ -40,19 +44,31 @@ public:
     {
         painter->save();
 
+        QFont font = painter->font();
+
+        painter->setRenderHint(QPainter::Antialiasing);
+        QPainterPath path;
+        path.addRoundedRect(option.rect.x()-ICON_OFFSET, option.rect.y()-CORRECTION, option.rect.width()-1, option.rect.height()+(CORRECTION * 2.5), BORDER_RADIUS, BORDER_RADIUS);
+        QPen pen(QColor(255, 255, 255), 0);
+        painter->setPen(pen);
+        painter->fillPath(path, QColor(255, 255, 255));
+        painter->drawPath(path);
+
         QIcon icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
         QRect mainRect = option.rect;
         mainRect.moveLeft(ICON_OFFSET);
-        QRect decorationRect(mainRect.topLeft(), QSize(DECORATION_SIZE, DECORATION_SIZE));
-        int xspace = DECORATION_SIZE + 8;
+        QRect decorationRect(mainRect.left()+ICON_OFFSET, mainRect.top(), DECORATION_SIZE, DECORATION_SIZE);
+        int xspace = DECORATION_SIZE + ICON_OFFSET + 8;
         int ypad = 6;
         int halfheight = (mainRect.height() - 2 * ypad) / 2;
-        QRect amountRect(mainRect.left() + xspace, mainRect.top() + ypad, mainRect.width() - xspace - ICON_OFFSET, halfheight);
-        QRect addressRect(mainRect.left() + xspace, mainRect.top() + ypad + halfheight, mainRect.width() - xspace, halfheight);
+        QRect dateRect(mainRect.left() + xspace, mainRect.top() + ypad + mainRect.height(), mainRect.width() - xspace - ICON_OFFSET, halfheight);
+        QRect amountRect(mainRect.left() + xspace, mainRect.top() + ypad + halfheight, mainRect.width() - xspace - ICON_OFFSET, halfheight);
+        QRect labelRect(mainRect.left() + xspace, mainRect.top() + ypad - 20, mainRect.width() - xspace, mainRect.height());
+        QRect addressRect(mainRect.left() + xspace, mainRect.top() + ypad + 1, mainRect.width() - xspace, mainRect.height());
         icon.paint(painter, decorationRect);
 
         QDateTime date = index.data(TransactionTableModel::DateRole).toDateTime();
-        QString address = index.data(Qt::DisplayRole).toString();
+        QString label = index.data(TransactionTableModel::LabelRole).toString();
         qint64 amount = index.data(TransactionTableModel::AmountRole).toLongLong();
         bool confirmed = index.data(TransactionTableModel::ConfirmedRole).toBool();
         QVariant value = index.data(Qt::ForegroundRole);
@@ -64,6 +80,18 @@ public:
 
         painter->setPen(foreground);
         QRect boundingRect;
+
+        font.setPixelSize(16);
+        painter->setPen(COLOR_BLACK);
+        font.setWeight(QFont::DemiBold);
+        painter->setFont(font);
+        painter->drawText(labelRect, Qt::AlignLeft | Qt::AlignVCenter, (label.isEmpty() ? tr("Unknown") : label), &boundingRect);
+
+        QString address = "(" + index.data(TransactionTableModel::AddressRole).toString() + ")";
+
+        font.setPixelSize(14);
+        painter->setPen(COLOR_GREEN);
+        painter->setFont(font);
         painter->drawText(addressRect, Qt::AlignLeft | Qt::AlignVCenter, address, &boundingRect);
 
         if (index.data(TransactionTableModel::WatchonlyRole).toBool()) {
@@ -80,18 +108,21 @@ public:
             foreground = COLOR_GREEN;
         }
         painter->setPen(foreground);
-        QFont font = painter->font();
+
         font.setPixelSize(16);
         font.setWeight(QFont::DemiBold);
         painter->setFont(font);
-        QString amountText = BitcoinUnits::formatWithUnit(unit, amount, true, BitcoinUnits::separatorAlways);
+        QString amountText = BitcoinUnits::format(BitcoinUnits::BCNA2, amount, true, BitcoinUnits::separatorAlways);
+        int pos = amountText.lastIndexOf(QChar('.'));
+        amountText = amountText.left(pos+3);
+
         if (!confirmed) {
             amountText = QString("[") + amountText + QString("]");
         }
         painter->drawText(amountRect, Qt::AlignRight | Qt::AlignVCenter, amountText);
 
         painter->setPen(COLOR_BLACK);
-        painter->drawText(amountRect, Qt::AlignLeft | Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
+        painter->drawText(dateRect, Qt::AlignLeft | Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
 
         painter->restore();
     }
@@ -124,8 +155,11 @@ OverviewPage::OverviewPage(QWidget* parent) : QWidget(parent),
     // Recent transactions
     ui->listTransactions->setItemDelegate(txdelegate);
     ui->listTransactions->setIconSize(QSize(DECORATION_SIZE, DECORATION_SIZE));
-    ui->listTransactions->setMinimumHeight(NUM_ITEMS * (DECORATION_SIZE + 2));
+    ui->listTransactions->setMinimumHeight(NUM_ITEMS+ROW_SPACING * (DECORATION_SIZE + 2));
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
+    ui->listTransactions->setSpacing(ROW_SPACING);
+    ui->listTransactions->setMinimumWidth(500);
+    ui->listTransactions->setUniformItemSizes(true);
 
     connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
 
@@ -160,6 +194,13 @@ OverviewPage::OverviewPage(QWidget* parent) : QWidget(parent),
     totalShadow->setColor(shadowColor);
     totalShadow->setOffset(shadowOffsetX, shadowOffsetY);
     ui->totalWidget->setGraphicsEffect(totalShadow);
+
+    QGraphicsDropShadowEffect *transactionShadow = new QGraphicsDropShadowEffect();
+    transactionShadow->setBlurRadius(shadowBlurRadius);
+    transactionShadow->setColor(shadowColor);
+    transactionShadow->setOffset(shadowOffsetX, shadowOffsetY);
+    ui->listTransactions->setGraphicsEffect(transactionShadow);
+
 
 
     // init "out of sync" warning labels
@@ -230,8 +271,8 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
 
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
-    bool showImmature = immatureBalance != 0;
-    bool showWatchOnlyImmature = watchImmatureBalance != 0;
+//    bool showImmature = immatureBalance != 0;
+//    bool showWatchOnlyImmature = watchImmatureBalance != 0;
 
     // for symmetry reasons also show immature label when the watch-only one is shown
 //    ui->labelImmature->setVisible(showImmature || showWatchOnlyImmature);

@@ -37,7 +37,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout2" stretch="1,1">
+    <layout class="QHBoxLayout" name="horizontalLayout2" stretch="1,0,1">
      <property name="spacing">
       <number>15</number>
      </property>
@@ -148,7 +148,7 @@
                  <height>41</height>
                 </rect>
                </property>
-               <layout class="QHBoxLayout" name="availableHorizontalLayout_5" stretch="1,2">
+               <layout class="QHBoxLayout" name="availableHorizontalLayout_5" stretch="1,0,2">
                 <property name="spacing">
                  <number>0</number>
                 </property>
@@ -164,6 +164,19 @@
                    <string>Available:</string>
                   </property>
                  </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_2">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                 <item>
                  <widget class="QLabel" name="labelBalance">
@@ -210,6 +223,19 @@
              </widget>
             </item>
             <item>
+             <spacer name="verticalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
              <widget class="QWidget" name="pendingWidget" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
@@ -238,7 +264,7 @@
                  <height>41</height>
                 </rect>
                </property>
-               <layout class="QHBoxLayout" name="pendingHorizontalLayout" stretch="1,2">
+               <layout class="QHBoxLayout" name="pendingHorizontalLayout" stretch="1,0,2">
                 <property name="sizeConstraint">
                  <enum>QLayout::SetMaximumSize</enum>
                 </property>
@@ -254,6 +280,19 @@
                    <set>Qt::NoTextInteraction</set>
                   </property>
                  </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_4">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                 <item>
                  <widget class="QLabel" name="labelUnconfirmed">
@@ -285,6 +324,19 @@
              </widget>
             </item>
             <item>
+             <spacer name="verticalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
              <widget class="QWidget" name="immatureWidget" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
@@ -313,7 +365,7 @@
                  <height>41</height>
                 </rect>
                </property>
-               <layout class="QHBoxLayout" name="immatureHorizontalLayout" stretch="1,2">
+               <layout class="QHBoxLayout" name="immatureHorizontalLayout" stretch="1,0,2">
                 <property name="sizeConstraint">
                  <enum>QLayout::SetMaximumSize</enum>
                 </property>
@@ -323,6 +375,19 @@
                    <string>Immature:</string>
                   </property>
                  </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_5">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                 <item>
                  <widget class="QLabel" name="labelImmature">
@@ -357,6 +422,19 @@
              </widget>
             </item>
             <item>
+             <spacer name="verticalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
              <widget class="QWidget" name="totalWidget" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
@@ -382,7 +460,7 @@
                  <height>41</height>
                 </rect>
                </property>
-               <layout class="QHBoxLayout" name="totalHorizontalLayout" stretch="1,2">
+               <layout class="QHBoxLayout" name="totalHorizontalLayout" stretch="1,0,2">
                 <property name="sizeConstraint">
                  <enum>QLayout::SetMaximumSize</enum>
                 </property>
@@ -395,6 +473,19 @@
                    <string>Total:</string>
                   </property>
                  </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_6">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                 <item>
                  <widget class="QLabel" name="labelTotal">
@@ -453,6 +544,19 @@
         </spacer>
        </item>
       </layout>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_7">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -516,6 +620,12 @@
           </item>
           <item>
            <widget class="QListView" name="listTransactions">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="autoFillBackground">
              <bool>false</bool>
             </property>

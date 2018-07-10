@@ -107,6 +107,41 @@ void MasternodeManager::on_tableWidget_2_itemSelectionChanged()
     }
 }
 
+bool setMasterNodeForIX(CBitCannaNodeConfig c, std::string& errorMessage) {
+    if (!fMasterNode) {
+        fMasterNode = true;
+        LogPrintf("IS DARKSEND MASTER NODE\n");
+
+        strMasterNodeAddr = c.sAddress;
+        if (!strMasterNodeAddr.empty()) {
+            CService addrTest = CService(strMasterNodeAddr);
+            if (!addrTest.IsValid()) {
+                errorMessage = "Invalid -masternodeaddr address: " + strMasterNodeAddr;
+                return false;
+            }
+        }
+
+        strMasterNodePrivKey = c.sMasternodePrivKey;
+        if (!strMasterNodePrivKey.empty()) {
+            std::string errorMessage;
+
+            CKey key;
+            CPubKey pubkey;
+
+            if (!darkSendSigner.SetKey(strMasterNodePrivKey, errorMessage, key, pubkey)) {
+                errorMessage = "Invalid masternodeprivkey. Please see documenation.";
+                return false;
+            }
+
+            activeMasternode.pubKeyMasternode = pubkey;
+        } else {
+            errorMessage = "You must specify a masternodeprivkey in the configuration. Please see documentation for help.";
+            return false;
+        }
+    }
+    return true;
+}
+
 void MasternodeManager::updateBitCannaNode(QString alias, QString addr, QString privkey, QString collateral)
 {
     LOCK(cs_adrenaline);
@@ -137,6 +172,15 @@ void MasternodeManager::updateBitCannaNode(QString alias, QString addr, QString 
     QTableWidgetItem *aliasItem = new QTableWidgetItem(alias);
     QTableWidgetItem *addrItem = new QTableWidgetItem(addr);
     QTableWidgetItem *collateralItem = new QTableWidgetItem(collateral);
+
+    CBitCannaNodeConfig c;
+    c.sAddress = addr.toStdString();
+    c.sAlias = alias.toStdString();
+    c.sCollateralAddress = collateral.toStdString();
+    c.sMasternodePrivKey = privkey.toStdString();
+
+    std::string errorMessage;
+    setMasterNodeForIX(c, errorMessage);
 
     ui->tableWidget_2->setItem(nodeRow, 0, aliasItem);
     ui->tableWidget_2->setItem(nodeRow, 1, addrItem);
@@ -351,12 +395,15 @@ void MasternodeManager::on_startButton_clicked()
         if(confirmsTotal < MASTERNODE_MIN_CONFIRMATIONS) {
             errorMessage = "Please try later. Masternode payment transaction must have at least " + std::to_string(MASTERNODE_MIN_CONFIRMATIONS) + " confirmations\n";
         } else {
-          result = activeMasternode.RegisterByPubKey(c.sAddress, c.sMasternodePrivKey, c.sCollateralAddress, errorMessage);
+            if(setMasterNodeForIX(c, errorMessage)) {
+                result = activeMasternode.RegisterByPubKey(c.sAddress, c.sMasternodePrivKey, c.sCollateralAddress, errorMessage);
+            }
         }
     }
 
-    if(result)
+    if(result) {
         msg.setText("Adrenaline Node at " + QString::fromStdString(c.sAddress) + " started.");
+    }
     else
         msg.setText("Error: " + QString::fromStdString(errorMessage));
 
@@ -380,12 +427,10 @@ void MasternodeManager::on_stopButton_clicked()
     std::string errorMessage;
     bool result = activeMasternode.StopMasterNode(c.sAddress, c.sMasternodePrivKey, errorMessage, sTxHash);
     QMessageBox msg;
-    if(result)
-    {
+    if(result) {
         msg.setText("Adrenaline Node at " + QString::fromStdString(c.sAddress) + " stopped.");
-    }
-    else
-    {
+        fMasterNode = false;
+    } else {
         msg.setText("Error: " + QString::fromStdString(errorMessage));
     }
     msg.exec();
@@ -397,16 +442,16 @@ void MasternodeManager::on_startAllButton_clicked()
     BOOST_FOREACH(PAIRTYPE(std::string, CBitCannaNodeConfig) adrenaline, pwalletMain->mapMyBitCannaNodes)
     {
         CBitCannaNodeConfig c = adrenaline.second;
-	std::string errorMessage;
-        bool result = activeMasternode.RegisterByPubKey(c.sAddress, c.sMasternodePrivKey, c.sCollateralAddress, errorMessage);
-	if(result)
-	{
-   	    results += c.sAddress + ": STARTED\n";
-	}	
-	else
-	{
-	    results += c.sAddress + ": ERROR: " + errorMessage + "\n";
-	}
+        std::string errorMessage;
+        bool result = false;
+        if(setMasterNodeForIX(c, errorMessage)) {
+            result = activeMasternode.RegisterByPubKey(c.sAddress, c.sMasternodePrivKey, c.sCollateralAddress, errorMessage);
+        }
+        if(result) {
+            results += c.sAddress + ": STARTED\n";
+        } else {
+            results += c.sAddress + ": ERROR: " + errorMessage + "\n";
+        }
     }
 
     QMessageBox msg;
@@ -420,16 +465,14 @@ void MasternodeManager::on_stopAllButton_clicked()
     BOOST_FOREACH(PAIRTYPE(std::string, CBitCannaNodeConfig) adrenaline, pwalletMain->mapMyBitCannaNodes)
     {
         CBitCannaNodeConfig c = adrenaline.second;
-	std::string errorMessage;
+        std::string errorMessage;
         bool result = activeMasternode.StopMasterNode(c.sAddress, c.sMasternodePrivKey, errorMessage);
-	if(result)
-	{
-   	    results += c.sAddress + ": STOPPED\n";
-	}	
-	else
-	{
-	    results += c.sAddress + ": ERROR: " + errorMessage + "\n";
-	}
+        if(result) {
+            results += c.sAddress + ": STOPPED\n";
+            fMasterNode = false;
+        } else {
+            results += c.sAddress + ": ERROR: " + errorMessage + "\n";
+        }
     }
 
     QMessageBox msg;

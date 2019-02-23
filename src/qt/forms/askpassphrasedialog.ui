@@ -53,7 +53,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="passLabel1">
        <property name="text">
-        <string>Enter passphrase</string>
+        <string>Current passphrase</string>
        </property>
       </widget>
      </item>
@@ -113,14 +113,14 @@
        <property name="enabled">
         <bool>true</bool>
        </property>
+       <property name="visible">
+        <bool>false</bool>
+       </property>
        <property name="toolTip">
         <string>Serves to disable the trivial sendmoney when OS account compromised. Provides no real security.</string>
        </property>
        <property name="text">
         <string>For anonymization and staking only</string>
-       </property>
-       <property name="visible">
-        <bool>false</bool>
        </property>
       </widget>
      </item>

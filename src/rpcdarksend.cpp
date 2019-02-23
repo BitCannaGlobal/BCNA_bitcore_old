@@ -123,10 +123,10 @@ Value masternode(const Array& params, bool fHelp)
         strCommand = params[0].get_str();
 
     if (fHelp  ||
-        (strCommand != "start" && strCommand != "start-alias" && strCommand != "start-many" && strCommand != "stop" && strCommand != "stop-alias" && strCommand != "stop-many" && strCommand != "list" && strCommand != "list-conf" && strCommand != "count"  && strCommand != "enforce"
+        (strCommand != "start" && strCommand != "start-index" && strCommand != "start-many" && strCommand != "stop" && strCommand != "stop-index" && strCommand != "stop-many" && strCommand != "list" && strCommand != "list-conf" && strCommand != "count"  && strCommand != "enforce"
             && strCommand != "debug" && strCommand != "current" && strCommand != "winners" && strCommand != "genkey" && strCommand != "connect" && strCommand != "outputs"))
         throw runtime_error(
-            "masternode <start|start-alias|start-many|stop|stop-alias|stop-many|list|list-conf|count|debug|current|winners|genkey|enforce|outputs> [passphrase]\n");
+            "masternode <start|start-index|start-many|stop|stop-index|stop-many|list|list-conf|count|debug|current|winners|genkey|enforce|outputs> [passphrase]\n");
 
     if (strCommand == "stop")
     {
@@ -160,14 +160,14 @@ Value masternode(const Array& params, bool fHelp)
         return "unknown";
     }
 
-    if (strCommand == "stop-alias")
+    if (strCommand == "stop-index")
     {
 	    if (params.size() < 2){
 			throw runtime_error(
 			"command needs at least 2 parameters\n");
 	    }
 
-	    std::string alias = params[1].get_str().c_str();
+        std::string index = params[1].get_str().c_str();
 
     	if(pwalletMain->IsLocked()) {
     		SecureString strWalletPass;
@@ -188,13 +188,13 @@ Value masternode(const Array& params, bool fHelp)
     	bool found = false;
 
 		Object statusObj;
-		statusObj.push_back(Pair("alias", alias));
+        statusObj.push_back(Pair("index", index));
 
     	BOOST_FOREACH(CMasternodeConfig::CMasternodeEntry mne, masternodeConfig.getEntries()) {
-    		if(mne.getAlias() == alias) {
+            if(mne.getIndex() == index) {
     			found = true;
     			std::string errorMessage;
-    			bool result = activeMasternode.StopMasterNode(mne.getIp(), mne.getPrivKey(), errorMessage);
+                bool result = activeMasternode.StopMasterNode(mne.getIp(), mne.getPrivKey(), errorMessage, mne.getVin());
 
 				statusObj.push_back(Pair("result", result ? "successful" : "failed"));
     			if(!result) {
@@ -206,7 +206,7 @@ Value masternode(const Array& params, bool fHelp)
 
     	if(!found) {
     		statusObj.push_back(Pair("result", "failed"));
-    		statusObj.push_back(Pair("errorMessage", "could not find alias in config. Verify with list-conf."));
+            statusObj.push_back(Pair("errorMessage", "could not find index in config. Verify with list-conf."));
     	}
 
     	pwalletMain->Lock();
@@ -242,10 +242,10 @@ Value masternode(const Array& params, bool fHelp)
 			total++;
 
 			std::string errorMessage;
-			bool result = activeMasternode.StopMasterNode(mne.getIp(), mne.getPrivKey(), errorMessage);
+            bool result = activeMasternode.StopMasterNode(mne.getIp(), mne.getPrivKey(), errorMessage, mne.getVin());
 
 			Object statusObj;
-			statusObj.push_back(Pair("alias", mne.getAlias()));
+            statusObj.push_back(Pair("index", mne.getIndex()));
 			statusObj.push_back(Pair("result", result ? "successful" : "failed"));
 
 			if(result) {
@@ -304,7 +304,7 @@ Value masternode(const Array& params, bool fHelp)
             } else if (strCommand == "activeseconds") {
                 obj.push_back(Pair(mn.addr.ToString().c_str(),       (int64_t)(mn.lastTimeSeen - mn.now)));
             } else if (strCommand == "rank") {
-                obj.push_back(Pair(mn.addr.ToString().c_str(),       (int)(GetMasternodeRank(mn.vin, chainActive.Tip()->nHeight))));
+                obj.push_back(Pair(mn.addr.ToString().c_str(),       (int)(GetMasternodeRank(mn.vin, chainActive.Height()))));
             }
         }
         return obj;
@@ -348,14 +348,14 @@ Value masternode(const Array& params, bool fHelp)
         return "unknown";
     }
 
-    if (strCommand == "start-alias")
+    if (strCommand == "start-index")
     {
 	    if (params.size() < 2){
 			throw runtime_error(
 			"command needs at least 2 parameters\n");
 	    }
 
-	    std::string alias = params[1].get_str().c_str();
+        std::string index = params[1].get_str().c_str();
 
     	if(pwalletMain->IsLocked()) {
     		SecureString strWalletPass;
@@ -376,13 +376,16 @@ Value masternode(const Array& params, bool fHelp)
     	bool found = false;
 
 		Object statusObj;
-		statusObj.push_back(Pair("alias", alias));
+        statusObj.push_back(Pair("index", index));
+
+        CBitCannaNodeConfig c;
 
     	BOOST_FOREACH(CMasternodeConfig::CMasternodeEntry mne, masternodeConfig.getEntries()) {
-    		if(mne.getAlias() == alias) {
+            if(mne.getIndex() == index) {
+                c = pwalletMain->mapMyBitCannaNodes[mne.getIndex()];
     			found = true;
     			std::string errorMessage;
-    			bool result = activeMasternode.Register(mne.getIp(), mne.getPrivKey(), mne.getTxHash(), mne.getOutputIndex(), errorMessage);
+                bool result = activeMasternode.RegisterByPubKey(c.sAddress, c.sMasternodePrivKey, c.sCollateralAddress, errorMessage);
 
     			statusObj.push_back(Pair("result", result ? "successful" : "failed"));
     			if(!result) {
@@ -394,7 +397,7 @@ Value masternode(const Array& params, bool fHelp)
 
     	if(!found) {
     		statusObj.push_back(Pair("result", "failed"));
-    		statusObj.push_back(Pair("errorMessage", "could not find alias in config. Verify with list-conf."));
+            statusObj.push_back(Pair("errorMessage", "could not find index in config. Verify with list-conf."));
     	}
 
     	pwalletMain->Lock();
@@ -436,7 +439,7 @@ Value masternode(const Array& params, bool fHelp)
 			bool result = activeMasternode.Register(mne.getIp(), mne.getPrivKey(), mne.getTxHash(), mne.getOutputIndex(), errorMessage);
 
 			Object statusObj;
-			statusObj.push_back(Pair("alias", mne.getAlias()));
+            statusObj.push_back(Pair("index", mne.getIndex()));
 			statusObj.push_back(Pair("result", result ? "succesful" : "failed"));
 
 			if(result) {
@@ -506,7 +509,7 @@ Value masternode(const Array& params, bool fHelp)
     {
         Object obj;
 
-        for(int nHeight = chainActive.Tip()->nHeight-10; nHeight < chainActive.Tip()->nHeight+20; nHeight++)
+        for(int nHeight = chainActive.Height()-10; nHeight < chainActive.Height()+20; nHeight++)
         {
             CScript payee;
             if(masternodePayments.GetBlockPayee(nHeight, payee)){
@@ -555,7 +558,7 @@ Value masternode(const Array& params, bool fHelp)
 
         BOOST_FOREACH(CMasternodeConfig::CMasternodeEntry mne, masternodeConfig.getEntries()) {
     		Object mnObj;
-    		mnObj.push_back(Pair("alias", mne.getAlias()));
+            mnObj.push_back(Pair("index", mne.getIndex()));
     		mnObj.push_back(Pair("address", mne.getIp()));
     		mnObj.push_back(Pair("privateKey", mne.getPrivKey()));
     		mnObj.push_back(Pair("txHash", mne.getTxHash()));

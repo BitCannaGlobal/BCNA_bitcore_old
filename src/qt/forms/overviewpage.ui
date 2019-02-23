@@ -56,7 +56,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,0,0">
+           <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,0,1">
             <item>
              <widget class="QLabel" name="label_5">
               <property name="styleSheet">
@@ -131,6 +131,12 @@
                <size>
                 <width>300</width>
                 <height>60</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>404</width>
+                <height>16777215</height>
                </size>
               </property>
               <property name="autoFillBackground">
@@ -239,7 +245,7 @@
              <widget class="QWidget" name="pendingWidget" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
-                <horstretch>0</horstretch>
+                <horstretch>2</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
@@ -249,11 +255,17 @@
                 <height>60</height>
                </size>
               </property>
+              <property name="maximumSize">
+               <size>
+                <width>404</width>
+                <height>16777215</height>
+               </size>
+              </property>
               <property name="layoutDirection">
                <enum>Qt::LeftToRight</enum>
               </property>
               <property name="styleSheet">
-               <string notr="true">background-color:#FFF</string>
+               <string notr="true">background-color:white;</string>
               </property>
               <widget class="QWidget" name="horizontalLayoutWidget_2">
                <property name="geometry">
@@ -308,6 +320,12 @@
                   <property name="toolTip">
                    <string>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</string>
                   </property>
+                  <property name="styleSheet">
+                   <string notr="true"/>
+                  </property>
+                  <property name="frameShadow">
+                   <enum>QFrame::Plain</enum>
+                  </property>
                   <property name="text">
                    <string notr="true">0.000 000 00 BCNA</string>
                   </property>
@@ -348,6 +366,12 @@
                <size>
                 <width>300</width>
                 <height>60</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>404</width>
+                <height>16777215</height>
                </size>
               </property>
               <property name="autoFillBackground">
@@ -446,6 +470,12 @@
                <size>
                 <width>300</width>
                 <height>60</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>404</width>
+                <height>16777215</height>
                </size>
               </property>
               <property name="styleSheet">

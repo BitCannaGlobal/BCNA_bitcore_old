@@ -40,6 +40,8 @@ EditAddressDialog::EditAddressDialog(Mode mode, QWidget* parent) : QDialog(paren
         break;
     }
 
+    ui->buttonBox->setCenterButtons(true);
+
     mapper = new QDataWidgetMapper(this);
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
 }

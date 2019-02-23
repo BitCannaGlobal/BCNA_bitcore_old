@@ -11,24 +11,33 @@
 #include "addressbookpage.h"
 #include "ui_addressbookpage.h"
 
+#include "addressbooktabledelegate.h"
+
 #include "addresstablemodel.h"
 #include "bitcoingui.h"
 #include "csvmodelwriter.h"
 #include "editaddressdialog.h"
 #include "guiutil.h"
+#include "guiconstants.h"
 
 #include <QIcon>
 #include <QMenu>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
+#include <QGraphicsDropShadowEffect>
+#include <QPainter>
+
+#include "moc_addressbooktabledelegate.cpp"
 
 AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget* parent) : QDialog(parent),
                                                                          ui(new Ui::AddressBookPage),
                                                                          model(0),
                                                                          mode(mode),
-                                                                         tab(tab)
+                                                                         tab(tab),
+                                                                         addressTableDelegate(new AddressBookTableDelegate())
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
 #ifdef Q_OS_MAC // Icons on push buttons are very uncommon on Mac
     ui->newAddress->setIcon(QIcon());
@@ -49,6 +58,7 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget* parent) : QDialog
         }
         connect(ui->tableView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(accept()));
         ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+//        ui->tableView->setItemDelegate(addressTableDelegate);
         ui->tableView->setFocus();
         ui->closeButton->setText(tr("C&hoose"));
         ui->exportButton->hide();
@@ -99,6 +109,7 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget* parent) : QDialog
     connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextualMenu(QPoint)));
 
     connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(ui->headerCloseButton, SIGNAL(clicked()), this, SLOT(close()));
 }
 
 AddressBookPage::~AddressBookPage()
@@ -193,6 +204,7 @@ void AddressBookPage::on_newAddress_clicked()
             EditAddressDialog::NewReceivingAddress,
         this);
     dlg.setModel(model);
+    dlg.setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
     if (dlg.exec()) {
         newAddressToSelect = dlg.getAddress();
     }

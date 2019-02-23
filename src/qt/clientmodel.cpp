@@ -54,12 +54,13 @@ ClientModel::~ClientModel()
 
 int ClientModel::getNumConnections(unsigned int flags) const
 {
+    vector<CNode*> vNodesCopy = vNodes;
     LOCK(cs_vNodes);
     if (flags == CONNECTIONS_ALL) // Shortcut if we want total
-        return vNodes.size();
+        return vNodesCopy.size();
 
     int nNum = 0;
-    BOOST_FOREACH (CNode* pnode, vNodes)
+    BOOST_FOREACH (CNode* pnode, vNodesCopy)
         if (flags & (pnode->fInbound ? CONNECTIONS_IN : CONNECTIONS_OUT))
             nNum++;
 

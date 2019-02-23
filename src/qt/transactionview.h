@@ -7,6 +7,8 @@
 
 #include "guiutil.h"
 
+#include "transactiontableviewdelegate.h"
+
 #include <QKeyEvent>
 #include <QWidget>
 
@@ -49,17 +51,18 @@ public:
     };
 
     enum ColumnWidths {
-        STATUS_COLUMN_WIDTH = 23,
+        STATUS_COLUMN_WIDTH = 55,
         WATCHONLY_COLUMN_WIDTH = 23,
-        DATE_COLUMN_WIDTH = 120,
+        DATE_COLUMN_WIDTH = 124,
         TYPE_COLUMN_WIDTH = 240,
-        AMOUNT_MINIMUM_COLUMN_WIDTH = 120,
+        AMOUNT_MINIMUM_COLUMN_WIDTH = 136,
         MINIMUM_COLUMN_WIDTH = 23
     };
 
 private:
     WalletModel* model;
     TransactionFilterProxy* transactionProxyModel;
+    TransactionTableViewDelegate* transactionViewDelegate;
     QTableView* transactionView;
     QComboBox* dateWidget;
     QComboBox* typeWidget;

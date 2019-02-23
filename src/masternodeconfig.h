@@ -12,6 +12,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
+#include "../primitives/transaction.h"
+
 class CMasternodeConfig;
 extern CMasternodeConfig masternodeConfig;
 
@@ -22,21 +24,32 @@ public:
 	class CMasternodeEntry {
 
 	private:
+        std::string index;
 		std::string alias;
 		std::string ip;
 		std::string privKey;
 		std::string txHash;
 		std::string outputIndex;
+        CTxIn vin;
 
 	public:
 
-		CMasternodeEntry(std::string alias, std::string ip, std::string privKey, std::string txHash, std::string outputIndex) {
-			this->alias = alias;
+        CMasternodeEntry(std::string index, std::string alias, std::string ip, std::string privKey, std::string txHash, std::string outputIndex) {
+            this->index = index;
+            this->alias = alias;
 			this->ip = ip;
 			this->privKey = privKey;
 			this->txHash = txHash;
 			this->outputIndex = outputIndex;
 		}
+
+        const std::string& getIndex() const {
+            return index;
+        }
+
+        void setIndex(const std::string& index) {
+            this->index = index;
+        }
 
 		const std::string& getAlias() const {
 			return alias;
@@ -69,15 +82,23 @@ public:
 
 		void setTxHash(const std::string& txHash) {
 			this->txHash = txHash;
-		}
+        }
 
-		const std::string& getIp() const {
-			return ip;
-		}
+        const std::string& getIp() const {
+            return ip;
+        }
 
-		void setIp(const std::string& ip) {
-			this->ip = ip;
-		}
+        void setIp(const std::string& ip) {
+            this->ip = ip;
+        }
+
+        const CTxIn& getVin() const {
+            return vin;
+        }
+
+        void setVin(const CTxIn& vin) {
+            this->vin = vin;
+        }
 	};
 
 	CMasternodeConfig() {
@@ -87,8 +108,8 @@ public:
 	void clear();
     bool read(std::string& strErr);
     bool write();
-    void add(std::string alias, std::string ip, std::string privKey, std::string txHash, std::string outputIndex);
-    void remove(std::string ip);
+    void add(string index, std::string alias, std::string ip, std::string privKey, std::string txHash, std::string outputIndex);
+    void remove(std::string index);
 
     CMasternodeEntry findEntryByIp(std::string sAddress) {
         BOOST_FOREACH(CMasternodeEntry mne, entries) {

@@ -41,7 +41,7 @@ public:
     bool Dseep(CTxIn vin, CService service, CKey key, CPubKey pubKey, std::string &retErrorMessage, bool stop); // ping for any masternode
 
     bool StopMasterNode(std::string& errorMessage); // stop main masternode
-    bool StopMasterNode(std::string strService, std::string strKeyMasternode, std::string& errorMessage, std::string strTxHash = ""); // stop remote masternode
+    bool StopMasterNode(std::string strService, std::string strKeyMasternode, std::string& errorMessage, CTxIn vin); // stop remote masternode
     bool StopMasterNode(CTxIn vin, CService service, CKey key, CPubKey pubKey, std::string& errorMessage); // stop any masternode
 
     bool Register(std::string strService, std::string strKey, std::string txHash, std::string strOutputIndex, std::string& errorMessage); // register remote masternode

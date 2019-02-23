@@ -76,6 +76,7 @@ class CBitCannaNodeConfig
 {
 public:
     int nVersion;
+    std::string sIndex;
     std::string sAlias;
     std::string sAddress;
     std::string sCollateralAddress;
@@ -93,6 +94,7 @@ public:
     {
         READWRITE(nVersion);
         nVersion = this->nVersion;
+        READWRITE(sIndex);
         READWRITE(sAlias);
         READWRITE(sAddress);
         READWRITE(sCollateralAddress);
@@ -117,9 +119,9 @@ public:
     bool WriteTx(uint256 hash, const CWalletTx& wtx);
     bool EraseTx(uint256 hash);
 
-    bool WriteBitCannaNodeConfig(std::string sAlias, const CBitCannaNodeConfig& nodeConfig);
-    bool ReadBitCannaNodeConfig(std::string sAlias, CBitCannaNodeConfig& nodeConfig);
-    bool EraseBitCannaNodeConfig(std::string sAlias);
+    bool WriteBitCannaNodeConfig(std::string sIndex, const CBitCannaNodeConfig& nodeConfig);
+    bool ReadBitCannaNodeConfig(std::string sIndex, CBitCannaNodeConfig& nodeConfig);
+    bool EraseBitCannaNodeConfig(std::string sIndex);
 
     bool WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata& keyMeta);
     bool WriteCryptedKey(const CPubKey& vchPubKey, const std::vector<unsigned char>& vchCryptedSecret, const CKeyMetadata& keyMeta);

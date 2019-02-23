@@ -8,6 +8,9 @@
 #include <QWidget>
 #include <QTimer>
 #include <QFuture>
+#include <QLabel>
+
+#include "basetabledelegate.h"
 
 #define MASTERNODELIST_UPDATE_SECONDS 15
 #define MASTERNODELIST_FILTER_COOLDOWN_SECONDS 3
@@ -37,7 +40,8 @@ public:
 
 public slots:
     void updateNodeList();
-    void updateBitCannaNode(QString alias, QString addr, QString privkey, QString collateral);
+    void updateBitCannaNode(QString alias, QString addr, QString privkey, QString collateral, QString balance = "", QString index = "");
+    void tabChanged();
     
 signals:
 
@@ -46,8 +50,12 @@ private:
     Ui::MasternodeManager *ui;
     ClientModel *clientModel;
     WalletModel *walletModel;
+    BaseTableDelegate* networkMasterNodesTableDelegate;
+    BaseTableDelegate* myMasterNodesTableDelegate;
     CCriticalSection cs_adrenaline;
     int64_t nTimeFilterUpdated;
+    QLabel* mnNetLabel;
+    QLabel* mnMyMasternodesLabel;
 	bool fFilterUpdated;
 	QFuture<void> f1;
     void subscribeToCoreSignals();
@@ -60,10 +68,9 @@ private slots:
     void on_getConfigButton_clicked();
     void on_startButton_clicked();
     void on_stopButton_clicked();
-    void on_startAllButton_clicked();
-    void on_stopAllButton_clicked();
     void on_removeButton_clicked();
     void on_tableWidget_2_itemSelectionChanged();
+    void on_actionsBox_activated(int index);
 };
 
 #endif // MASTERNODEMANAGER_H

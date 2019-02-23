@@ -69,21 +69,21 @@ bool CWalletDB::EraseTx(uint256 hash)
     return Erase(std::make_pair(std::string("tx"), hash));
 }
 
-bool CWalletDB::WriteBitCannaNodeConfig(std::string sAlias, const CBitCannaNodeConfig& nodeConfig)
+bool CWalletDB::WriteBitCannaNodeConfig(std::string sIndex, const CBitCannaNodeConfig& nodeConfig)
 {
     nWalletDBUpdated++;
-    return Write(std::make_pair(std::string("adrenaline"), sAlias), nodeConfig, true);
+    return Write(std::make_pair(std::string("adrenaline"), sIndex), nodeConfig, true);
 }
 
-bool CWalletDB::ReadBitCannaNodeConfig(std::string sAlias, CBitCannaNodeConfig& nodeConfig)
+bool CWalletDB::ReadBitCannaNodeConfig(std::string sIndex, CBitCannaNodeConfig& nodeConfig)
 {
-    return Read(std::make_pair(std::string("adrenaline"), sAlias), nodeConfig);
+    return Read(std::make_pair(std::string("adrenaline"), sIndex), nodeConfig);
 }
 
-bool CWalletDB::EraseBitCannaNodeConfig(std::string sAlias)
+bool CWalletDB::EraseBitCannaNodeConfig(std::string sIndex)
 {
     nWalletDBUpdated++;
-    return Erase(std::make_pair(std::string("adrenaline"), sAlias));
+    return Erase(std::make_pair(std::string("adrenaline"), sIndex));
 }
 
 bool CWalletDB::WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata& keyMeta)
@@ -905,7 +905,12 @@ bool BackupWallet(const CWallet& wallet, const string& strDest)
                 bitdb.mapFileUseCount.erase(wallet.strWalletFile);
 
                 // Copy wallet.dat
-                filesystem::path pathSrc = GetDataDir() / wallet.strWalletFile;
+                std::string pathSrcStr = GetDataDir().string();
+                std::string strWalletFile = GetArg("-wallet", "wallet.dat");
+                pathSrcStr += "/" + strWalletFile;
+                filesystem::path pathSrc = pathSrcStr;
+                pathSrc.make_preferred();
+
                 filesystem::path pathDest(strDest);
                 if (filesystem::is_directory(pathDest))
                     pathDest /= wallet.strWalletFile;

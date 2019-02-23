@@ -34,9 +34,12 @@
 #include <QTableView>
 #include <QUrl>
 #include <QVBoxLayout>
+#include <QGraphicsDropShadowEffect>
+
+#include "moc_transactiontableviewdelegate.cpp"
 
 TransactionView::TransactionView(QWidget* parent) : QWidget(parent), model(0), transactionProxyModel(0),
-                                                    transactionView(0)
+                                                    transactionView(0), transactionViewDelegate(new TransactionTableViewDelegate(5, 820))
 {
     QSettings settings;
     // Build filter row
@@ -59,22 +62,6 @@ TransactionView::TransactionView(QWidget* parent) : QWidget(parent), model(0), t
     watchOnlyWidget->addItem(QIcon(":/icons/eye_minus"), "", TransactionFilterProxy::WatchOnlyFilter_No);
     hlayout->addWidget(watchOnlyWidget);
 
-    dateWidget = new QComboBox(this);
-#ifdef Q_OS_MAC
-    dateWidget->setFixedWidth(121);
-#else
-    dateWidget->setFixedWidth(120);
-#endif
-    dateWidget->addItem(tr("All"), All);
-    dateWidget->addItem(tr("Today"), Today);
-    dateWidget->addItem(tr("This week"), ThisWeek);
-    dateWidget->addItem(tr("This month"), ThisMonth);
-    dateWidget->addItem(tr("Last month"), LastMonth);
-    dateWidget->addItem(tr("This year"), ThisYear);
-    dateWidget->addItem(tr("Range..."), Range);
-    dateWidget->setCurrentIndex(settings.value("transactionDate").toInt());
-    hlayout->addWidget(dateWidget);
-
     typeWidget = new QComboBox(this);
 #ifdef Q_OS_MAC
     typeWidget->setFixedWidth(TYPE_COLUMN_WIDTH + 1);
@@ -95,18 +82,37 @@ TransactionView::TransactionView(QWidget* parent) : QWidget(parent), model(0), t
     typeWidget->addItem(tr("Mined"), TransactionFilterProxy::TYPE(TransactionRecord::Generated));
     typeWidget->addItem(tr("Minted"), TransactionFilterProxy::TYPE(TransactionRecord::StakeMint));
     typeWidget->addItem(tr("Masternode Reward"), TransactionFilterProxy::TYPE(TransactionRecord::MNReward));
+    typeWidget->addItem(tr("Governance Reward"), TransactionFilterProxy::TYPE(TransactionRecord::GovernanceReward));
     typeWidget->addItem(tr("Other"), TransactionFilterProxy::TYPE(TransactionRecord::Other));
     typeWidget->setCurrentIndex(settings.value("transactionType").toInt());
 
     hlayout->addWidget(typeWidget);
 
+    dateWidget = new QComboBox(this);
+#ifdef Q_OS_MAC
+    dateWidget->setFixedWidth(121);
+#else
+    dateWidget->setFixedWidth(120);
+#endif
+    dateWidget->addItem(tr("All"), All);
+    dateWidget->addItem(tr("Today"), Today);
+    dateWidget->addItem(tr("This week"), ThisWeek);
+    dateWidget->addItem(tr("This month"), ThisMonth);
+    dateWidget->addItem(tr("Last month"), LastMonth);
+    dateWidget->addItem(tr("This year"), ThisYear);
+    dateWidget->addItem(tr("Range..."), Range);
+    dateWidget->setCurrentIndex(settings.value("transactionDate").toInt());
+    hlayout->addWidget(dateWidget);
+
     addressWidget = new QLineEdit(this);
+    addressWidget->setStyleSheet("height: 24px;");
 #if QT_VERSION >= 0x040700
     addressWidget->setPlaceholderText(tr("Enter address or label to search"));
 #endif
     hlayout->addWidget(addressWidget);
 
     amountWidget = new QLineEdit(this);
+    amountWidget->setStyleSheet("height: 24px;");
 #if QT_VERSION >= 0x040700
     amountWidget->setPlaceholderText(tr("Min amount"));
 #endif
@@ -138,10 +144,15 @@ TransactionView::TransactionView(QWidget* parent) : QWidget(parent), model(0), t
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     view->setTabKeyNavigation(false);
     view->setContextMenuPolicy(Qt::CustomContextMenu);
+    view->setShowGrid(false);
 
     view->installEventFilter(this);
 
     transactionView = view;
+
+    transactionView->setItemDelegate(transactionViewDelegate);
+
+    transactionView->verticalHeader()->setDefaultSectionSize(69);
 
     // Actions
     QAction* copyAddressAction = new QAction(tr("Copy address"), this);
@@ -197,7 +208,6 @@ void TransactionView::setModel(WalletModel* model)
 
         transactionView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         transactionView->setModel(transactionProxyModel);
-        transactionView->setAlternatingRowColors(true);
         transactionView->setSelectionBehavior(QAbstractItemView::SelectRows);
         transactionView->setSelectionMode(QAbstractItemView::ExtendedSelection);
         transactionView->setSortingEnabled(true);

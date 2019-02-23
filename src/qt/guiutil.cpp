@@ -547,8 +547,13 @@ TableViewLastColumnResizingFixer::TableViewLastColumnResizingFixer(QTableView* t
     lastColumnIndex = columnCount - 1;
     secondToLastColumnIndex = columnCount - 2;
     tableView->horizontalHeader()->setMinimumSectionSize(allColumnsMinimumWidth);
-    setViewHeaderResizeMode(secondToLastColumnIndex, QHeaderView::Interactive);
-    setViewHeaderResizeMode(lastColumnIndex, QHeaderView::Interactive);
+    if(secondToLastColumnIndex == 0) { // if only 2 columns
+        setViewHeaderResizeMode(secondToLastColumnIndex, QHeaderView::Fixed);
+        setViewHeaderResizeMode(lastColumnIndex, QHeaderView::Stretch);
+    } else {
+        setViewHeaderResizeMode(secondToLastColumnIndex, QHeaderView::Interactive);
+        setViewHeaderResizeMode(lastColumnIndex, QHeaderView::Interactive);
+    }
 }
 
 /**

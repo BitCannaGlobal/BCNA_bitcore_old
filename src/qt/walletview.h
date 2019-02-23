@@ -4,14 +4,27 @@
 
 #ifndef BITCOIN_QT_WALLETVIEW_H
 #define BITCOIN_QT_WALLETVIEW_H
-#include "createcontract.h"
 
 #include "amount.h"
 #include "masternodemanager.h"
 #include "stakingdialog.h"
-#include "tradingdialog.h"
 
 #include <QStackedWidget>
+
+#include <QWidget>
+#include <QObject>
+#include <QTableWidget>
+#include <stdint.h>
+#include "clientmodel.h"
+#include "walletmodel.h"
+
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
+#include "qcustomplot.h"
+
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QNetworkReply>
 
 class BitcoinGUI;
 class ClientModel;
@@ -22,7 +35,6 @@ class SendCoinsRecipient;
 class TransactionView;
 class WalletModel;
 class BlockExplorer;
-//class CreateContract ;
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -64,10 +76,8 @@ private:
     WalletModel* walletModel;
 
     OverviewPage* overviewPage;
-    CreateContract* smartToken;
     QWidget* transactionsPage;
     StakingDialog* stakingPage;
-    tradingDialog* tradingPage;
     ReceiveCoinsDialog* receiveCoinsPage;
     SendCoinsDialog* sendCoinsPage;
     BlockExplorer* explorerWindow;
@@ -85,14 +95,8 @@ public slots:
     void gotoHistoryPage();
     /** Switch to staking page */
     void gotoStakingPage();
-    /** Switch to trading page */
-    void gotoTradingPage();
     /** Switch to masternode page */
     void gotoMasternodePage();
-
-/** Switch to gotoSmartTokenPage*/
-    void gotoSmartTokenPage();
-
     /** Switch to explorer page */
     void gotoBlockExplorerPage();
     /** Switch to receive coins page */

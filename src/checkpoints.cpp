@@ -26,7 +26,7 @@ namespace Checkpoints
 static const double SIGCHECK_VERIFICATION_FACTOR = 5.0;
 
 bool fEnabled = true;
-
+static const int nCheckpointSpan = 500;
 bool CheckBlock(int nHeight, const uint256& hash)
 {
     if (!fEnabled)
@@ -91,11 +91,34 @@ CBlockIndex* GetLastCheckpoint()
 
     BOOST_REVERSE_FOREACH (const MapCheckpoints::value_type& i, checkpoints) {
         const uint256& hash = i.second;
-        BlockMap::const_iterator t = mapBlockIndex.find(hash);
-        if (t != mapBlockIndex.end())
-            return t->second;
+        CBlockIndex* pindex = LookupBlockIndex(hash);
+        if (pindex) return pindex;
     }
     return NULL;
 }
+
+const CBlockIndex* AutoSelectSyncCheckpoint()
+{
+    const CBlockIndex *pindexBest = chainActive.Tip();
+    const CBlockIndex *pindex = pindexBest;
+
+    if (!pindex) return NULL;
+    // Search backward for a block within max span and maturity window
+    while (pindex->pprev && pindex->nHeight + nCheckpointSpan > pindexBest->nHeight)
+        pindex = pindex->pprev;
+    return pindex;
+}
+
+// Check against synchronized checkpoint
+    bool CheckSync(int nHeight)
+    {
+        const CBlockIndex* pindexSync;
+        if(nHeight)
+            pindexSync = AutoSelectSyncCheckpoint();
+
+        if(nHeight && pindexSync && pindexSync->nHeight)
+            return false;
+        return true;
+    }
 
 } // namespace Checkpoints

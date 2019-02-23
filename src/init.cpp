@@ -51,6 +51,7 @@
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/thread.hpp>
 #include <openssl/crypto.h>
+#include <curl/curl.h>
 
 #if ENABLE_ZMQ
 #include "zmq/zmqnotificationinterface.h"
@@ -90,6 +91,8 @@ enum BindFlags {
 
 static const char* FEE_ESTIMATES_FILENAME = "fee_estimates.dat";
 CClientUIInterface uiInterface;
+
+string myIp = "";
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -167,6 +170,23 @@ void PrepareShutdown()
     TRY_LOCK(cs_Shutdown, lockShutdown);
     if (!lockShutdown)
         return;
+
+    std::string results = "";
+    BOOST_FOREACH(PAIRTYPE(std::string, CBitCannaNodeConfig) adrenaline, pwalletMain->mapMyBitCannaNodes)
+    {
+        CBitCannaNodeConfig c = adrenaline.second;
+        std::string sTxHash = masternodeConfig.findEntryByIp(c.sAddress).getTxHash();
+
+        std::string errorMessage;
+        bool result = activeMasternode.StopMasterNode(c.sAddress, c.sMasternodePrivKey, errorMessage, masternodeConfig.findEntryByIp(c.sAddress).getVin());
+        if(result) {
+            results += c.sAddress + ": STOPPED\n";
+            fMasterNode = false;
+        } else {
+            results += c.sAddress + ": ERROR: " + errorMessage + "\n";
+        }
+    }
+    LogPrintf("STOP MN STATUS: \n%s\n", results);
 
     /// Note: Shutdown() must be able to handle cases in which AppInit2() failed part of the way,
     /// for example if the data directory was found to be locked.
@@ -582,6 +602,12 @@ bool InitSanityCheck(void)
     return true;
 }
 
+static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
+{
+    ((std::string*)userp)->append((char*)contents, size * nmemb);
+    return size * nmemb;
+}
+
 
 /** Initialize bitcanna.
  *  @pre Parameters should be parsed and config file should be read.
@@ -982,9 +1008,14 @@ bool AppInit2(boost::thread_group& threadGroup)
                 }
                 // Loop backward through backup files and keep the N newest ones (1 <= N <= 10)
                 int counter = 0;
+                int countFiles = 0;
+
+                BOOST_REVERSE_FOREACH (PAIRTYPE(const std::time_t, boost::filesystem::path) file, folder_set) {
+                    countFiles++;
+                }
                 BOOST_REVERSE_FOREACH (PAIRTYPE(const std::time_t, boost::filesystem::path) file, folder_set) {
                     counter++;
-                    if (counter > nWalletBackups) {
+                    if (counter > nWalletBackups && counter < countFiles) {
                         // More than nWalletBackups backups: delete oldest one(s)
                         try {
                             boost::filesystem::remove(file.second);
@@ -1147,6 +1178,22 @@ bool AppInit2(boost::thread_group& threadGroup)
         RegisterValidationInterface(pzmqNotificationInterface);
     }
 #endif
+
+
+    CURL *curl;
+    CURLcode res;
+
+    curl = curl_easy_init();
+    if(curl) {
+      curl_easy_setopt(curl, CURLOPT_URL, "https://api.ipify.org");
+      curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+      curl_easy_setopt(curl, CURLOPT_WRITEDATA, &myIp);
+      res = curl_easy_perform(curl);
+      curl_easy_cleanup(curl);
+    }
+    else {
+        LogPrintf("ERROR! Curl init failed!\n");
+    }
 
     // ********************************************************* Step 7: load block chain
 

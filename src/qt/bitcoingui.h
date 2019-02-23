@@ -90,13 +90,12 @@ private:
     QLabel* progressBarLabel;
     QProgressBar* progressBar;
     QProgressDialog* progressDialog;
+    QLabel* statusTipLabel;
 
     QMenuBar* appMenuBar;
-    QAction* smartToken;
     QAction* overviewAction;
     QAction* historyAction;
     QAction* stakingAction;
-    QAction* tradingAction;
     QAction* masternodeAction;
     QAction* quitAction;
     QAction* sendCoinsAction;
@@ -182,6 +181,8 @@ public slots:
 
     void setStakingStatus();
 
+    void setEffect(QGraphicsEffect *effect = NULL);
+
 #ifdef ENABLE_WALLET
     /** Set the encryption status as shown in the UI.
        @param[in] status            current encryption status
@@ -203,14 +204,10 @@ private slots:
     void gotoHistoryPage();
     /** Switch to staking page */
     void gotoStakingPage();
-    /** Switch to trading page */
-    void gotoTradingPage();
     /** Switch to Explorer Page */
     void gotoBlockExplorerPage();
     /** Switch to masternode page */
     void gotoMasternodePage();
-    /** Switch to gotoSmartTokenPage*/
-    void gotoSmartTokenPage();
     /** Switch to receive coins page */
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */

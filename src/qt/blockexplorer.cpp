@@ -220,16 +220,17 @@ std::string BlockToString(CBlockIndex* pBlock)
     }
     TxContent += "</table>";
 
-    int64_t Generated;
-    if (pBlock->nHeight == 0)
+    int64_t Generated = GetProofOfStakeReward(0, 0, pBlock->nHeight) + GetMasternodePayment(pBlock->nHeight,0,0);
+    if (pBlock->nHeight == 0) {
         Generated = OutVolume;
-    else
-        Generated = GetProofOfWorkReward(0, pBlock->nHeight - 1);
+    } else if(pBlock->nHeight <= Params().LAST_POW_BLOCK()) {
+        Generated = GetProofOfWorkReward(0, pBlock->nHeight);
+    }
 
     std::string BlockContentCells[] =
         {
             _("Height"), itostr(pBlock->nHeight),
-            _("Size"), itostr(GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION)),
+            _("Size"), itostr(GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION)) + "&nbsp;&nbsp;" + "Bytes",
             _("Number of Transactions"), itostr(block.vtx.size()),
             _("Value Out"), ValueToString(OutVolume),
             _("Fees"), ValueToString(Fees),
@@ -436,6 +437,7 @@ BlockExplorer::BlockExplorer(QWidget* parent) : QMainWindow(parent),
     connect(ui->content, SIGNAL(linkActivated(const QString&)), this, SLOT(goTo(const QString&)));
     connect(ui->back, SIGNAL(released()), this, SLOT(back()));
     connect(ui->forward, SIGNAL(released()), this, SLOT(forward()));
+    connect(ui->lastBlock, SIGNAL(released()), this, SLOT(lastBlock()));
 }
 
 BlockExplorer::~BlockExplorer()
@@ -481,7 +483,7 @@ bool BlockExplorer::switchTo(const QString& query)
     bool IsOk;
     int64_t AsInt = query.toInt(&IsOk);
     // If query is integer, get hash from height
-    if (IsOk && AsInt >= 0 && AsInt <= chainActive.Tip()->nHeight) {
+    if (IsOk && AsInt >= 0 && AsInt <= chainActive.Height()) {
         std::string hex = getexplorerBlockHash(AsInt);
         uint256 hash = uint256S(hex);
         CBlockIndex* pIndex = mapBlockIndex[hash];
@@ -573,6 +575,12 @@ void BlockExplorer::forward()
         switchTo(m_History[NewIndex]);
         updateNavButtons();
     }
+}
+
+void BlockExplorer::lastBlock()
+{
+    QString text = QString("%1").arg(chainActive.Tip()->nHeight);
+    goTo(text);
 }
 
 void BlockExplorer::updateNavButtons()

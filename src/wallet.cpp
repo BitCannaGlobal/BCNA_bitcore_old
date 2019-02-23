@@ -989,8 +989,8 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived, list<COutputEntry>&
         // In either case, we need to get the destination address
         CTxDestination address;
         if (!ExtractDestination(txout.scriptPubKey, address)) {
-            LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s\n",
-                this->GetHash().ToString());
+//            LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s\n",
+//                this->GetHash().ToString());
             address = CNoDestination();
         }
 
@@ -1482,7 +1482,7 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
                     found = !IsCollateralAmount(pcoin->vout[i].nValue);
                     if (found) found = !IsDenominatedAmount(pcoin->vout[i].nValue);
                     if (found && nCoinType == ONLY_NONDENOMINATED_NOTMN) // do not use Hot MN funds
-                        found = (pcoin->vout[i].nValue != GetMNCollateral(chainActive.Tip()->nHeight) * COIN);
+                        found = (pcoin->vout[i].nValue != GetMNCollateral(chainActive.Height()) * COIN);
                 } else {
                     found = true;
                 }
@@ -1541,7 +1541,7 @@ void CWallet::AvailableCoinsMN(vector<COutput>& vCoins, bool fOnlyConfirmed, con
                     found = true;
                     if (IsCollateralAmount(pcoin->vout[i].nValue)) continue; // do not use collateral amounts
                     found = !IsDenominatedAmount(pcoin->vout[i].nValue);
-                    if(found && coin_type == ONLY_NONDENOMINATED_NOTMN) found = (pcoin->vout[i].nValue != GetMNCollateral(chainActive.Tip()->nHeight)*COIN); // do not use MN funds
+                    if(found && coin_type == ONLY_NONDENOMINATED_NOTMN) found = (pcoin->vout[i].nValue != GetMNCollateral(chainActive.Height()) * COIN); // do not use MN funds
                 } else {
                     found = true;
                 }
@@ -1957,7 +1957,7 @@ bool CWallet::SelectCoinsDark(CAmount nValueMin, CAmount nValueMax, std::vector<
     BOOST_FOREACH (const COutput& out, vCoins) {
         //there's no reason to allow inputs less than 1 COIN into DS (other than denominations smaller than that amount)
         if (out.tx->vout[out.i].nValue < 1*COIN && out.tx->vout[out.i].nValue != (.1*COIN)+100) continue;
-        if (fMasterNode && out.tx->vout[out.i].nValue == GetMNCollateral(chainActive.Tip()->nHeight)*COIN) continue; //masternode input
+        if (fMasterNode && out.tx->vout[out.i].nValue == GetMNCollateral(chainActive.Height()) * COIN) continue; //masternode input
 
         if (nValueRet + out.tx->vout[out.i].nValue <= nValueMax) {
             CTxIn vin = CTxIn(out.tx->GetHash(), out.i);
@@ -3316,7 +3316,7 @@ bool CWallet::MultiSend()
         return false;
     }
 
-    if (chainActive.Tip()->nHeight <= nLastMultiSendHeight) {
+    if (chainActive.Height() <= nLastMultiSendHeight) {
         LogPrintf("Multisend: lastmultisendheight is higher than current best height\n");
         return false;
     }
@@ -3403,7 +3403,7 @@ bool CWallet::MultiSend()
 
         //write nLastMultiSendHeight to DB
         CWalletDB walletdb(strWalletFile);
-        nLastMultiSendHeight = chainActive.Tip()->nHeight;
+        nLastMultiSendHeight = chainActive.Height();
         if (!walletdb.WriteMSettings(fMultiSendStake, fMultiSendMasternodeReward, nLastMultiSendHeight))
             LogPrintf("Failed to write MultiSend setting to DB\n");
 
@@ -3563,7 +3563,7 @@ bool CMerkleTx::IsTransactionLockTimedOut() const
 
 bool CWallet::AddBitCannaNodeConfig(CBitCannaNodeConfig nodeConfig)
 {
-    bool rv = CWalletDB(strWalletFile).WriteBitCannaNodeConfig(nodeConfig.sAlias, nodeConfig);
+    bool rv = CWalletDB(strWalletFile).WriteBitCannaNodeConfig(nodeConfig.sIndex, nodeConfig);
     if(rv)
         uiInterface.NotifyBitCannaNodeChanged(nodeConfig);
 

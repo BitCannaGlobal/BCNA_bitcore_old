@@ -25,12 +25,12 @@
 #include <QGraphicsDropShadowEffect>
 #include <QMargins>
 
-#define DECORATION_SIZE 35
-#define ICON_OFFSET 16
+#define DECORATION_SIZE 25
+#define ICON_OFFSET 13
 #define NUM_ITEMS 4
 #define ROW_SPACING 30
 #define CORRECTION 20
-#define BORDER_RADIUS 10
+#define BORDER_RADIUS 5
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
@@ -57,14 +57,15 @@ public:
         QIcon icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
         QRect mainRect = option.rect;
         mainRect.moveLeft(ICON_OFFSET);
-        QRect decorationRect(mainRect.left()+ICON_OFFSET, mainRect.top(), DECORATION_SIZE, DECORATION_SIZE);
-        int xspace = DECORATION_SIZE + ICON_OFFSET + 8;
+        QRect decorationRect(mainRect.left()+ICON_OFFSET, mainRect.top() + 4, DECORATION_SIZE, DECORATION_SIZE);
+        int xspace = DECORATION_SIZE + ICON_OFFSET + 10;
         int ypad = 6;
         int halfheight = (mainRect.height() - 2 * ypad) / 2;
-        QRect dateRect(mainRect.left() + xspace, mainRect.top() + ypad + mainRect.height(), mainRect.width() - xspace - ICON_OFFSET, halfheight);
-        QRect amountRect(mainRect.left() + xspace, mainRect.top() + ypad + halfheight, mainRect.width() - xspace - ICON_OFFSET, halfheight);
+
+        QRect dateRect(mainRect.left() + xspace, mainRect.top() + ypad + 20, mainRect.width() - xspace - ICON_OFFSET, mainRect.height());
+        QRect amountRect(mainRect.left() + xspace, mainRect.top() + ypad, mainRect.width() - xspace - ICON_OFFSET, mainRect.height());
         QRect labelRect(mainRect.left() + xspace, mainRect.top() + ypad - 20, mainRect.width() - xspace, mainRect.height());
-        QRect addressRect(mainRect.left() + xspace, mainRect.top() + ypad + 1, mainRect.width() - xspace, mainRect.height());
+        QRect addressRect(mainRect.left() + xspace, mainRect.top() + ypad, mainRect.width() - xspace, mainRect.height());
         icon.paint(painter, decorationRect);
 
         QDateTime date = index.data(TransactionTableModel::DateRole).toDateTime();
@@ -112,9 +113,7 @@ public:
         font.setPixelSize(16);
         font.setWeight(QFont::DemiBold);
         painter->setFont(font);
-        QString amountText = BitcoinUnits::format(BitcoinUnits::BCNA2, amount, true, BitcoinUnits::separatorAlways);
-        int pos = amountText.lastIndexOf(QChar('.'));
-        amountText = amountText.left(pos+3);
+        QString amountText = BitcoinUnits::simpleFormat(BitcoinUnits::BCNA, amount, true, BitcoinUnits::separatorAlways, 2);
 
         if (!confirmed) {
             amountText = QString("[") + amountText + QString("]");
@@ -158,7 +157,7 @@ OverviewPage::OverviewPage(QWidget* parent) : QWidget(parent),
     ui->listTransactions->setMinimumHeight(NUM_ITEMS+ROW_SPACING * (DECORATION_SIZE + 2));
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->listTransactions->setSpacing(ROW_SPACING);
-    ui->listTransactions->setMinimumWidth(500);
+    ui->listTransactions->setMinimumWidth(550);
     ui->listTransactions->setUniformItemSizes(true);
 
     connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
@@ -256,14 +255,15 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
     currentWatchUnconfBalance = watchUnconfBalance;
     currentWatchImmatureBalance = watchImmatureBalance;
 
+    const int decimalsWidth = 2;
 
 //    ui->labelImmature->setVisible(showImmature || showWatchOnlyImmature);
 
-    ui->labelBalance->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, balance - immatureBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelUnconfirmed->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, unconfirmedBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelImmature->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, immatureBalance, false, BitcoinUnits::separatorAlways));
+    ui->labelBalance->setText(BitcoinUnits::simpleFormatWithUnit(nDisplayUnit, balance - immatureBalance, false, BitcoinUnits::separatorAlways, decimalsWidth));
+    ui->labelUnconfirmed->setText(BitcoinUnits::simpleFormatWithUnit(nDisplayUnit, unconfirmedBalance, false, BitcoinUnits::separatorAlways, decimalsWidth));
+    ui->labelImmature->setText(BitcoinUnits::simpleFormatWithUnit(nDisplayUnit, immatureBalance, false, BitcoinUnits::separatorAlways, decimalsWidth));
 //    ui->labelAnonymized->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, anonymizedBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelTotal->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, balance + unconfirmedBalance, false, BitcoinUnits::separatorAlways));
+    ui->labelTotal->setText(BitcoinUnits::simpleFormatWithUnit(nDisplayUnit, balance + unconfirmedBalance, false, BitcoinUnits::separatorAlways, decimalsWidth));
 //    ui->labelWatchAvailable->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, watchOnlyBalance, false, BitcoinUnits::separatorAlways));
 //    ui->labelWatchPending->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, watchUnconfBalance, false, BitcoinUnits::separatorAlways));
 //    ui->labelWatchImmature->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, watchImmatureBalance, false, BitcoinUnits::separatorAlways));
@@ -499,7 +499,7 @@ void OverviewPage::darksendStatus()
 #if 0
     static int64_t nLastDSProgressBlockTime = 0;
 
-    int nBestHeight = chainActive.Tip()->nHeight;
+    int nBestHeight = chainActive.Height();
 
     // we we're processing more then 1 block per second, we'll just leave
     //if (((nBestHeight - darksendPool.cachedNumBlocks) / (GetTimeMillis() - nLastDSProgressBlockTime + 1) > 1)) return;

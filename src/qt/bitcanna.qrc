@@ -55,6 +55,10 @@
         <file alias="staking_active">res/icons/staking_active.png</file>
         <file alias="staking_inactive">res/icons/staking_inactive.png</file>
         <file alias="qrcode">res/icons/qrcode.png</file>
+        <file alias="info_icon">res/icons/info_icon.png</file>
+        <file alias="close_icon">res/icons/close_icon.png</file>
+        <file alias="checked">res/icons/checked.png</file>
+        <file alias="unchecked">res/icons/uncheked.png</file>
     </qresource>
     <qresource prefix="/css">
         <file alias="default">res/css/default.css</file>
@@ -73,6 +77,14 @@
         <file alias="splash">res/images/splash.png</file>
         <file alias="splash_testnet">res/images/splash_testnet.png</file>
         <file alias="logo-bcna">res/images/logo-bcna.png</file>
+        <file alias="shadow">res/images/shadow.png</file>
+        <file alias="shadow_element">res/images/shadow_element.png</file>
+        <file>res/images/Table-ElementGreenBig-Shadow.png</file>
+        <file alias="table-element-bg-selected">res/images/Table-ElementGreen-Shadow.png</file>
+        <file alias="table-element-bg">res/images/Table-Element-Shadow.png</file>
+        <file alias="table-element-bg-right">res/images/Table-Element-Shadow-right.png</file>
+        <file alias="table-element-bg-center">res/images/Table-Element-Shadow-center.png</file>
+        <file alias="table-element-bg-left">res/images/Table-Element-Shadow-left.png</file>
     </qresource>
     <qresource prefix="/movies">
         <file alias="spinner-000">res/movies/spinner-000.png</file>

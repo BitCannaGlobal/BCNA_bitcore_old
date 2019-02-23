@@ -10,6 +10,7 @@
 #include "init.h"
 #include "base58.h"
 #include "masternodeconfig.h"
+#include "netbase.h"
 #include <QMessageBox>
 
 AddEditBitCannaNode::AddEditBitCannaNode(QWidget *parent) :
@@ -28,34 +29,32 @@ AddEditBitCannaNode::~AddEditBitCannaNode()
 
 void AddEditBitCannaNode::on_okButton_clicked()
 {
-    if(ui->aliasLineEdit->text() == "")
-    {
-	QMessageBox msg;
-        msg.setText("Please enter an alias.");
-	msg.exec();
-	return;
-    }
-    else if(ui->addressLineEdit->text() == "")
-    {
-	QMessageBox msg;
+    QMessageBox msg;
+    if(ui->addressLineEdit->text() == "") {
         msg.setText("Please enter an address.");
-	msg.exec();
-	return;
-    }
-    else
-    {
-	CBitCannaNodeConfig c;
-        c.sAlias = ui->aliasLineEdit->text().toStdString();
-	c.sAddress = ui->addressLineEdit->text().toStdString();
+        msg.exec();
+        return;
+    } else {
+        CService ipPort((ui->addressLineEdit->text()).toStdString(), 13700);
+        if(!ipPort.IsIPv4()) {
+            msg.setText("Please enter a valid address.");
+            msg.exec();
+            return;
+        }
+        CBitCannaNodeConfig c;
+        int index = masternodeConfig.getCount()+2;
+        c.sAlias = "false"; // for compatibility
+        c.sIndex = "Masternode_"+std::to_string(index);
+        c.sAddress = ipPort.ToStringIPPort();
         CKey secret;
         secret.MakeNewKey(false);
         c.sMasternodePrivKey = CBitcoinSecret(secret).ToString();
 	
         CWalletDB walletdb(pwalletMain->strWalletFile);
         CAccount account;
-        walletdb.ReadAccount(c.sAlias, account);
+        walletdb.ReadAccount(c.sIndex, account);
         bool bKeyUsed = false;
-	bool bForceNew = false;
+        bool bForceNew = false;
 
         // Check if the current key has been used
         if (account.vchPubKey.IsValid())
@@ -77,22 +76,22 @@ void AddEditBitCannaNode::on_okButton_clicked()
         {
             if (!pwalletMain->GetKeyFromPool(account.vchPubKey))
             {
-		QMessageBox msg;
+                QMessageBox msg;
                 msg.setText("Keypool ran out, please call keypoolrefill first.");
-		msg.exec();
-		return;
-	    }
-            pwalletMain->SetAddressBook(account.vchPubKey.GetID(), c.sAlias, "");
-            walletdb.WriteAccount(c.sAlias, account);
+                msg.exec();
+                return;
+            }
+            pwalletMain->SetAddressBook(account.vchPubKey.GetID(), c.sIndex, "");
+            walletdb.WriteAccount(c.sIndex, account);
         }
 
         c.sCollateralAddress = CBitcoinAddress(account.vchPubKey.GetID()).ToString();
 
-        pwalletMain->mapMyBitCannaNodes.insert(make_pair(c.sAddress, c));
-	walletdb.WriteBitCannaNodeConfig(c.sAddress, c);
+        pwalletMain->mapMyBitCannaNodes.insert(make_pair(c.sIndex, c));
+        walletdb.WriteBitCannaNodeConfig(c.sIndex, c);
         uiInterface.NotifyBitCannaNodeChanged(c);
 
-        masternodeConfig.add(c.sAlias, c.sAddress, c.sMasternodePrivKey, "false", "false");
+        masternodeConfig.add(c.sIndex, c.sAlias, c.sAddress, c.sMasternodePrivKey, "false", "false");
 
         accept();
     }

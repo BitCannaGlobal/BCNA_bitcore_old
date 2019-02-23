@@ -20,7 +20,7 @@ QList<BitcoinUnits::Unit> BitcoinUnits::availableUnits()
 {
     QList<BitcoinUnits::Unit> unitlist;
     unitlist.append(BCNA);
-//    unitlist.append(BCNA2);
+//    unitlist.append(mBCNA);
 //    unitlist.append(uBCNA);
     return unitlist;
 }
@@ -29,7 +29,7 @@ bool BitcoinUnits::valid(int unit)
 {
     switch (unit) {
     case BCNA:
-    case BCNA2:
+//    case mBCNA:
 //    case uBCNA:
         return true;
     default:
@@ -42,8 +42,8 @@ QString BitcoinUnits::id(int unit)
     switch (unit) {
     case BCNA:
         return QString("bitcanna");
-    case BCNA2:
-        return QString("bitcanna2");
+//    case mBCNA:
+//        return QString("mbitcanna");
 //    case uBCNA:
 //        return QString::fromUtf8("ubitcanna");
     default:
@@ -57,8 +57,8 @@ QString BitcoinUnits::name(int unit)
         switch (unit) {
         case BCNA:
             return QString("BCNA");
-        case BCNA2:
-            return QString("BCNA2");
+//        case mBCNA:
+//            return QString("mBCNA");
 //        case uBCNA:
 //            return QString::fromUtf8("μBCNA");
         default:
@@ -84,8 +84,8 @@ QString BitcoinUnits::description(int unit)
         switch (unit) {
         case BCNA:
             return QString("BCNA");
-        case BCNA2:
-            return QString("BCNA 2-digits)");
+//        case mBCNA:
+//            return QString("MilliBCNA");
 //        case uBCNA:
 //            return QString("Micro-BCNA (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
         default:
@@ -109,7 +109,6 @@ qint64 BitcoinUnits::factor(int unit)
 {
     switch (unit) {
     case BCNA:
-    case BCNA2:
         return 100000000;
 //    case mBCNA:
 //        return 100000;
@@ -125,8 +124,6 @@ int BitcoinUnits::decimals(int unit)
     switch (unit) {
     case BCNA:
         return 8;
-    case BCNA2:
-        return 2;
 //    case mBCNA:
 //        return 5;
 //    case uBCNA:
@@ -168,6 +165,19 @@ QString BitcoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
         return quotient_str;
 
     return quotient_str + QString(".") + remainder_str;
+}
+
+QString BitcoinUnits::simpleFormat(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, int decimalsWidth)
+{
+    QString result = format(unit, amount, plussign, separators);
+    int pos = result.lastIndexOf(QChar('.'));
+    result = result.left(pos + decimalsWidth+1);
+    return result;
+}
+
+QString BitcoinUnits::simpleFormatWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, int decimalsWidth)
+{
+    return simpleFormat(unit, amount, plussign, separators, decimalsWidth) + QString(" ") + name(unit);
 }
 
 

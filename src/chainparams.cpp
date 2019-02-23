@@ -53,13 +53,13 @@ static void convertSeed6(std::vector<CAddress>& vSeedsOut, const SeedSpec6* data
 // + Contains no strange transactions
 static Checkpoints::MapCheckpoints mapCheckpoints =
     boost::assign::map_list_of
-            ( 0,   uint256("0x484814f2f61aef2b740805bbb7b5598d51145d5e90e27ad2453ef986394be40f") ) //TODO here
+            ( 0,   uint256("0x33be33f1b089581f9e2f76593b223c1a351c265ee08f32813bf54a294857849d") ) //TODO here
 ;
 
 static const Checkpoints::CCheckpointData data = {
     &mapCheckpoints,
-    1525365162, // * UNIX timestamp of last checkpoint block
-    0,    // * total number of transactions between genesis and last checkpoint
+    1539267342, // * UNIX timestamp of last checkpoint block
+    431340,    // * total number of transactions between genesis and last checkpoint
                 //   (the tx=... number in the SetBestChain debug.log lines)
     2000        // * estimated number of transactions per day after checkpoint
 };
@@ -117,12 +117,12 @@ public:
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
          * a large 4-byte int at any alignment.
          */
-        pchMessageStart[0] = 0xcc;
-        pchMessageStart[1] = 0xda;
-        pchMessageStart[2] = 0xfe;
-        pchMessageStart[3] = 0x01;
+        pchMessageStart[0] = 0xea;
+        pchMessageStart[1] = 0x3d;
+        pchMessageStart[2] = 0x11;
+        pchMessageStart[3] = 0xf1;
         vAlertPubKey = ParseHex("042d13c016ed91528241bcff222989769417eb10cdb679228c91e26e26900eb9fd053cd9f16a9a2894ad5ebbd551be1a4bd23bd55023679be17f0bd3a16e6fbeba");
-        nDefaultPort = /*28666*/ 12700;
+        nDefaultPort = /*28666*/ 12800;
         bnProofOfWorkLimit = ~uint256(0) >> 1; // BCNA starting difficulty is 1 / 2^12
         nSubsidyHalvingInterval = 210000;
         nMaxReorganizationDepth = 100;
@@ -132,15 +132,15 @@ public:
         nMinerThreads = 0;
         nTargetTimespan = 25 * 30; // BCNA: 1 36hrs
         nTargetSpacing = 30;  // BCNA: 2 minute
-        nLastPOWBlock = 80;
+        nLastPOWBlock = 100;
         nMaturity = 10;
         nMasternodeCountDrift = 20;
         nModifierUpdateBlock = 615800;
 
-        const char* pszTimestamp = "BBC: 3may2018 - Virat Kohli: Surrey sign India captain for at least six matches in June"; // Input Activation code to activate blockchain
+        const char* pszTimestamp = "BBC: 11oct2018 - Astronauts escape malfunctioning Soyuz rocket"; // Input Activation code to activate blockchain
         CMutableTransaction txNew;
         txNew.nVersion = 1;
-        txNew.nTime = 1525365162;
+        txNew.nTime = 1539267342;
         txNew.nLockTime = 0;
         txNew.vin.resize(1);
         txNew.vout.resize(1);
@@ -153,7 +153,7 @@ public:
         genesis.nVersion = 1;
         genesis.nTime = txNew.nTime; //10/10/2017
         genesis.nBits = bnProofOfWorkLimit.GetCompact();
-        genesis.nNonce = 1;
+        genesis.nNonce = 0;
 
         hashGenesisBlock = genesis.GetHash();
 
@@ -161,10 +161,10 @@ public:
             generateGenesis(genesis);
         }
 
-        assert(hashGenesisBlock == uint256("0x484814f2f61aef2b740805bbb7b5598d51145d5e90e27ad2453ef986394be40f"));
-        assert(genesis.hashMerkleRoot == uint256("0x9514014d5e8cb394433370a7c2ca50127426d9daa59be15475d61a41c3838f3a"));
+        assert(hashGenesisBlock == uint256("0x33be33f1b089581f9e2f76593b223c1a351c265ee08f32813bf54a294857849d"));
+        assert(genesis.hashMerkleRoot == uint256("0x1359fa50732a8bc0eb8888b78e16b20b5d7af465edb12de761fcf5ba4942569b"));
 
-        vSeeds.push_back(CDNSSeedData("1", "dnsseed.srv0.sysoev.pw")); // DNSSeed
+        vSeeds.push_back(CDNSSeedData("1", "")); // DNSSeed
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,48); // BCNA Start letter L
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,48);
@@ -192,7 +192,7 @@ public:
 
         nStakingRoundPeriod = 120; // 2 minutes a round
         nStakingInterval = 22;
-        nStakingMinAge = 5 * 60; // TODO maybe will have to increase
+        nStakingMinAge = 10 * 60; // TODO maybe will have to increase
     }
 
     const Checkpoints::CCheckpointData& Checkpoints() const

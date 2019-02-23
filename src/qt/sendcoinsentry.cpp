@@ -9,6 +9,7 @@
 
 #include "addressbookpage.h"
 #include "addresstablemodel.h"
+#include "bitcoinunits.h"
 #include "guiutil.h"
 #include "optionsmodel.h"
 #include "walletmodel.h"
@@ -43,11 +44,26 @@ SendCoinsEntry::SendCoinsEntry(QWidget* parent) : QStackedWidget(parent),
     connect(ui->deleteButton_is, SIGNAL(clicked()), this, SLOT(deleteClicked()));
     connect(ui->deleteButton_s, SIGNAL(clicked()), this, SLOT(deleteClicked()));
 
+//    connect(ui->addressBookButton, SIGNAL(clicked()), BitcoinApplication::instance(), SLOT(setEffect(new DarkenEffect)));
+
 //    QGraphicsDropShadowEffect *shadowPayTo = new QGraphicsDropShadowEffect();
 //    shadowPayTo->setBlurRadius(10);
 //    shadowPayTo->setColor(0x555555);
 //    shadowPayTo->setOffset(0);
 //    ui->payTo->setGraphicsEffect(shadowPayTo);
+
+    const int shadowBlurRadius = 10;
+    const int shadowOffsetX = 0;
+    const int shadowOffsetY = 3;
+    QColor shadowColor = QColor(0, 0, 0, 50);
+// box-shadow: inset 0px 0px 20px 0px rgba(0,0,0,0.75);
+    QGraphicsDropShadowEffect *totalShadow = new QGraphicsDropShadowEffect();
+    totalShadow->setBlurRadius(shadowBlurRadius);
+    totalShadow->setColor(shadowColor);
+    totalShadow->setOffset(shadowOffsetX, shadowOffsetY);
+    ui->totalWidget->setGraphicsEffect(totalShadow);
+
+//    ui->payAmount->setGraphicsEffect(totalShadow);
 
     QGraphicsDropShadowEffect *shadowAddressBookButton = new QGraphicsDropShadowEffect();
     shadowAddressBookButton->setBlurRadius(10);
@@ -55,20 +71,8 @@ SendCoinsEntry::SendCoinsEntry(QWidget* parent) : QStackedWidget(parent),
     shadowAddressBookButton->setOffset(0);
     ui->addressBookButton->setGraphicsEffect(shadowAddressBookButton);
 
-
-    QGraphicsDropShadowEffect *shadowPasteButton = new QGraphicsDropShadowEffect();
-    shadowPasteButton->setBlurRadius(10);
-    shadowPasteButton->setColor(0x555555);
-    shadowPasteButton->setOffset(0);
-    ui->pasteButton->setGraphicsEffect(shadowPasteButton);
-
-    QGraphicsDropShadowEffect *shadowDeleteButton = new QGraphicsDropShadowEffect();
-    shadowDeleteButton->setBlurRadius(10);
-    shadowDeleteButton->setColor(0x555555);
-    shadowDeleteButton->setOffset(0);
-    ui->deleteButton->setGraphicsEffect(shadowDeleteButton);
-
-
+    ui->pasteButton->hide();
+    ui->deleteButton->hide();
 }
 
 SendCoinsEntry::~SendCoinsEntry()
@@ -88,6 +92,7 @@ void SendCoinsEntry::on_addressBookButton_clicked()
         return;
     AddressBookPage dlg(AddressBookPage::ForSelection, AddressBookPage::SendingTab, this);
     dlg.setModel(model->getAddressTableModel());
+    dlg.setModal(true);
     if (dlg.exec()) {
         ui->payTo->setText(dlg.getReturnValue());
         ui->payAmount->setFocus();
@@ -103,9 +108,12 @@ void SendCoinsEntry::setModel(WalletModel* model)
 {
     this->model = model;
 
-    if (model && model->getOptionsModel())
+    if (model && model->getOptionsModel()) {
+        setBalance(model->getBalance(), model->getUnconfirmedBalance(), model->getImmatureBalance(), model->getAnonymizedBalance(),
+            model->getWatchBalance(), model->getWatchUnconfirmedBalance(), model->getWatchImmatureBalance());
+        connect(model, SIGNAL(balanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)), this, SLOT(setBalance(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)));
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
-
+    }
     clear();
 }
 
@@ -134,6 +142,23 @@ void SendCoinsEntry::clear()
 void SendCoinsEntry::deleteClicked()
 {
     emit removeEntry(this);
+}
+
+void SendCoinsEntry::setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& anonymizedBalance, const CAmount& watchBalance, const CAmount& watchUnconfirmedBalance, const CAmount& watchImmatureBalance)
+{
+    Q_UNUSED(unconfirmedBalance);
+    Q_UNUSED(immatureBalance);
+    Q_UNUSED(anonymizedBalance);
+    Q_UNUSED(watchBalance);
+    Q_UNUSED(watchUnconfirmedBalance);
+    Q_UNUSED(watchImmatureBalance);
+
+    if (model && model->getOptionsModel()) {
+        uint64_t bal = 0;
+        bal = balance;
+
+        ui->labelTotal->setText(BitcoinUnits::format(model->getOptionsModel()->getDisplayUnit(), bal));
+    }
 }
 
 bool SendCoinsEntry::validate()

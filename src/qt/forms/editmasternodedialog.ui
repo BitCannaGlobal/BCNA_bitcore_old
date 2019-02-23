@@ -13,9 +13,22 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QLineEdit:disabled {
+    color: #cccccc;
+    border: 2px solid #cccccc;
+    }</string>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="1">
-    <widget class="QLineEdit" name="editMNDialogAddressEdit"/>
+    <widget class="QLineEdit" name="editMNDialogAddressEdit">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="readOnly">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="editMNDialogAliasLabel">
@@ -25,7 +38,14 @@
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="QLineEdit" name="editMNDialogPrivateKeyEdit"/>
+    <widget class="QLineEdit" name="editMNDialogPrivateKeyEdit">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="3" column="0">
     <widget class="QLabel" name="editMNDialogPrivateKeyLabel">
@@ -36,6 +56,9 @@
    </item>
    <item row="5" column="1">
     <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -52,7 +75,11 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QLineEdit" name="editMNDialogAliasEdit"/>
+    <widget class="QLineEdit" name="editMNDialogAliasEdit">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
    <item row="4" column="0">
     <widget class="QLabel" name="editMNDialogTxLabel">
@@ -62,7 +89,14 @@
     </widget>
    </item>
    <item row="4" column="1">
-    <widget class="QLineEdit" name="editMNDialogTxEdit"/>
+    <widget class="QLineEdit" name="editMNDialogTxEdit">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

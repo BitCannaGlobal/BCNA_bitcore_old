@@ -53,6 +53,9 @@
 #include <QTimer>
 #include <QTranslator>
 #include <QFontDatabase>
+#include <QGraphicsEffect>
+#include <QPainter>
+#include <QToolButton>
 
 #if defined(QT_STATICPLUGIN)
 #include <QtPlugin>
@@ -165,6 +168,28 @@ void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
     LogPrint(category, "GUI: %s\n", msg.toStdString());
 }
 #endif
+
+class DarkenEffect : public QGraphicsEffect
+{
+public:
+    void draw( QPainter* painter ) override
+    {
+        QPixmap pixmap;
+        QPoint offset;
+        if( sourceIsPixmap() ) // No point in drawing in device coordinates (pixmap will be scaled anyways)
+            pixmap = sourcePixmap( Qt::LogicalCoordinates, &offset );
+        else // Draw pixmap in device coordinates to avoid pixmap scaling;
+        {
+            pixmap = sourcePixmap( Qt::DeviceCoordinates, &offset );
+            painter->setWorldTransform( QTransform() );
+        }
+        painter->setBrush( QColor( 0, 0, 0, 255 ) ); // black bg
+        painter->drawRect( pixmap.rect() );
+        painter->setOpacity( 0.5 );
+        painter->drawPixmap( offset, pixmap );
+    }
+};
+
 
 /** Class encapsulating BitCanna startup and shutdown.
  * Allows running startup and shutdown in a different thread from the UI thread.
@@ -380,7 +405,6 @@ void BitcoinApplication::createOptionsModel()
 void BitcoinApplication::createWindow(const NetworkStyle* networkStyle)
 {
     window = new BitcoinGUI(networkStyle, 0);
-
     pollShutdownTimer = new QTimer(window);
     connect(pollShutdownTimer, SIGNAL(timeout()), window, SLOT(detectShutdown()));
     pollShutdownTimer->start(200);
@@ -491,6 +515,12 @@ void BitcoinApplication::initializeResult(int retval)
             paymentServer, SLOT(handleURIOrFile(QString)));
         connect(paymentServer, SIGNAL(message(QString, QString, unsigned int)),
             window, SLOT(message(QString, QString, unsigned int)));
+
+//        connect(
+//            window->findChild<QToolButton*>("addressBookButton"), &QToolButton::clicked,
+//            [=]( const int &newValue ) { window->setEffect( new DarkenEffect ); }
+//        );
+
         QTimer::singleShot(100, paymentServer, SLOT(uiReady()));
 #endif
     } else {

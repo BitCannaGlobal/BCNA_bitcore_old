@@ -2,6 +2,7 @@
 #define EDITMASTERNODEDIALOG_H
 
 #include <QDialog>
+#include <QAbstractButton>
 
 namespace Ui {
     class EditMasterNodeDialog;
@@ -18,9 +19,9 @@ class EditMasterNodeDialog : public QDialog
 public:
     explicit EditMasterNodeDialog(QWidget *parent = 0, QString alias = "", QString address = "", QString privateKey = "", QString txHash = "");
     ~EditMasterNodeDialog();
-
-private slots:
-    void on_buttonBox_accepted();
+    std::string newIp;
+    std::string index;
+    void done(int);
 
 private:
     Ui::EditMasterNodeDialog *ui;

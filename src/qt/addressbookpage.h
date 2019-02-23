@@ -7,6 +7,8 @@
 
 #include <QDialog>
 
+#include "addressbooktabledelegate.h"
+
 class AddressTableModel;
 class OptionsModel;
 
@@ -59,6 +61,7 @@ private:
     QMenu* contextMenu;
     QAction* deleteAction; // to be able to explicitly disable it
     QString newAddressToSelect;
+    AddressBookTableDelegate* addressTableDelegate;
 
 private slots:
     /** Delete currently selected address entry */

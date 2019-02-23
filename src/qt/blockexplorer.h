@@ -39,6 +39,7 @@ private Q_SLOTS:
     void goTo(const QString& query);
     void back();
     void forward();
+    void lastBlock();
 
 private:
     Ui::BlockExplorer* ui;

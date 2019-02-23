@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>540</width>
-    <height>241</height>
+    <height>320</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Add/Edit BitCannaNodes Node</string>
+   <string>Add/Edit Masternode</string>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -34,7 +34,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter an Alias (friendly name) for your BitCannaNodes Node and its address (either clearnet IP and port or Tor onion address and port).  The address should be in the format 123.456.789.123:9999 or akjdsafxjkhasdf.onion:9999.  A masternode private key and a collateral address will both be automatically generated for you.  You must send exactly 16120 BCNA to the collateral address.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter an Alias (friendly name) for your Masternode and its address (either clearnet IP and port or Tor onion address and port).  The address should be either in the 123.456.789.123:9999 or akjdsafxjhasdf.onion:9999 format.  A masternode private key and a collateral address will both be automatically generated for you.  You must send exactly 16120 BCNA to the collateral address.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
@@ -42,24 +42,10 @@
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <property name="bottomMargin">
-        <number>0</number>
+      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,7">
+       <property name="spacing">
+        <number>6</number>
        </property>
-       <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Alias</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="aliasLineEdit"/>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
        <property name="bottomMargin">
         <number>0</number>
        </property>
@@ -71,7 +57,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="addressLineEdit"/>
+        <widget class="QLineEdit" name="addressLineEdit">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>

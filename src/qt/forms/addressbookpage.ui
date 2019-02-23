@@ -12,6 +12,43 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="headerCloseButton">
+       <property name="maximumSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../bitcanna.qrc">
+         <normaloff>:/icons/close_icon</normaloff>:/icons/close_icon</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QLabel" name="labelExplanation">
      <property name="textFormat">
       <enum>Qt::PlainText</enum>
@@ -96,10 +133,6 @@
        <property name="text">
         <string>&amp;New</string>
        </property>
-       <property name="icon">
-        <iconset resource="../bitcanna.qrc">
-         <normaloff>:/icons/add</normaloff>:/icons/add</iconset>
-       </property>
        <property name="autoDefault">
         <bool>false</bool>
        </property>
@@ -113,10 +146,6 @@
        <property name="text">
         <string>&amp;Copy</string>
        </property>
-       <property name="icon">
-        <iconset resource="../bitcanna.qrc">
-         <normaloff>:/icons/editcopy</normaloff>:/icons/editcopy</iconset>
-       </property>
        <property name="autoDefault">
         <bool>false</bool>
        </property>
@@ -129,10 +158,6 @@
        </property>
        <property name="text">
         <string>&amp;Delete</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../bitcanna.qrc">
-         <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
        </property>
        <property name="autoDefault">
         <bool>false</bool>

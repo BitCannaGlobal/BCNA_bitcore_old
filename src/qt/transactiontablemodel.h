@@ -29,8 +29,8 @@ public:
     enum ColumnIndex {
         Status = 0,
         Watchonly = 1,
-        Date = 2,
-        Type = 3,
+        Type = 2,
+        Date = 3,
         ToAddress = 4,
         Amount = 5
     };

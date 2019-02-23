@@ -14,18 +14,18 @@
 
 CMasternodeConfig masternodeConfig;
 
-void CMasternodeConfig::add(std::string alias, std::string ip, std::string privKey, std::string txHash, std::string outputIndex) 
+void CMasternodeConfig::add(std::string index, std::string alias, std::string ip, std::string privKey, std::string txHash, std::string outputIndex)
 {
-    CMasternodeEntry cme(alias, ip, privKey, txHash, outputIndex);
+    CMasternodeEntry cme(index, alias, ip, privKey, txHash, outputIndex);
     entries.push_back(cme);
 }
 
-void CMasternodeConfig::remove(std::string ip)
+void CMasternodeConfig::remove(std::string index)
 {
     int i = 0;
     BOOST_FOREACH(CMasternodeEntry adrenaline, entries)
     {
-        if(adrenaline.getIp() == ip) {
+        if(adrenaline.getIndex() == index) {
             entries.erase(entries.begin() + i);
         }
         i++;
@@ -48,8 +48,9 @@ bool CMasternodeConfig::read(std::string& strErr)
         if (configFile != NULL) 
         {
             std::string strHeader = "# Masternode config file\n"
-                                    "# Format: alias IP:port masternodeprivkey collateral_output_txid collateral_output_index\n"
-                                    "# Example: mn1 127.0.0.2:26868 93HaYBVUCYjEMeeH1Y4sBGLALQZE1Yc1K64xiqgX37tGBDQL8Xg 2bcd3c84c84f87eaa86e4e56834c92927a07f9e18718810b92e0d0324456a67c 0\n";
+                                    "# Format: index alias IP:port masternodeprivkey collateral_output_txid collateral_output_index\n"
+                                    "# Don't change index column manually, you'll lose your masternode!"
+                                    "# Example: mn0 mn0 127.0.0.2:26868 93HaYBVUCYjEMeeH1Y4sBGLALQZE1Yc1K64xiqgX37tGBDQL8Xg 2bcd3c84c84f87eaa86e4e56834c92927a07f9e18718810b92e0d0324456a67c 0\n";
             fwrite(strHeader.c_str(), std::strlen(strHeader.c_str()), 1, configFile);
             fclose(configFile);
         }
@@ -73,7 +74,7 @@ bool CMasternodeConfig::read(std::string& strErr)
         if (line.empty()) continue;
 
         std::istringstream iss(line);
-        std::string comment, alias, ip, privKey, txHash, outputIndex;
+        std::string comment, index, alias, ip, privKey, txHash, outputIndex;
 
         if (iss >> comment) {
             if (comment.at(0) == '#') continue;
@@ -81,11 +82,11 @@ bool CMasternodeConfig::read(std::string& strErr)
             iss.clear();
         }
 
-        if (!(iss >> alias >> ip >> privKey >> txHash >> outputIndex))
+        if (!(iss >> index >> alias >> ip >> privKey))
         {
             iss.str(line);
             iss.clear();
-            if (!(iss >> alias >> ip >> privKey >> txHash >> outputIndex))
+            if (!(iss >> index >> alias >> ip >> privKey))
             {
                 LogPrintf("CMasternodeConfig::read - Could not parse masternode.conf. Line: %s\n", line.c_str());
                 strErr = "CMasternodeConfig::read - Could not parse masternode.conf. Line: " + std::to_string(linenumber);
@@ -97,12 +98,13 @@ bool CMasternodeConfig::read(std::string& strErr)
         CBitCannaNodeConfig c;
 
         boost::replace_all(alias, "_", " ");
+        c.sIndex = index;
         c.sAlias = alias;
         c.sAddress = ip;
         c.sMasternodePrivKey = privKey;
 
         CAccount account;
-        walletdb.ReadAccount(c.sAlias, account);
+        walletdb.ReadAccount(c.sIndex, account);
         bool bKeyUsed = false;
         bool bForceNew = false;
 
@@ -131,13 +133,13 @@ bool CMasternodeConfig::read(std::string& strErr)
                 return false;
             }
             pwalletMain->SetAddressBook(account.vchPubKey.GetID(), c.sAlias, "");
-            walletdb.WriteAccount(c.sAlias, account);
+            walletdb.WriteAccount(c.sIndex, account);
         }
 
         c.sCollateralAddress = CBitcoinAddress(account.vchPubKey.GetID()).ToString();
 
-        pwalletMain->mapMyBitCannaNodes.insert(make_pair(c.sAddress, c));
-        walletdb.WriteBitCannaNodeConfig(c.sAddress, c);
+        pwalletMain->mapMyBitCannaNodes.insert(make_pair(c.sIndex, c));
+        walletdb.WriteBitCannaNodeConfig(c.sIndex, c);
         uiInterface.NotifyBitCannaNodeChanged(c);
 
         if (!(CService(ip).IsIPv4() && CService(ip).IsRoutable())) 
@@ -148,7 +150,7 @@ bool CMasternodeConfig::read(std::string& strErr)
             return false;
         }
 
-        add(alias, ip, privKey, txHash, outputIndex);
+        add(index, alias, ip, privKey, txHash, outputIndex);
     }
     streamConfig.close();
     return true;
@@ -167,7 +169,7 @@ bool CMasternodeConfig::write()
         {
             alias = adrenaline.getAlias();
             boost::replace_all(alias, " ", "_");
-            streamConfig << alias << " " << adrenaline.getIp() << " " << adrenaline.getPrivKey() << " " << adrenaline.getTxHash() << " " << adrenaline.getOutputIndex() << "\n";
+            streamConfig << adrenaline.getIndex() << " " << alias << " " << adrenaline.getIp() << " " << adrenaline.getPrivKey() << "\n";
         }
     }
 

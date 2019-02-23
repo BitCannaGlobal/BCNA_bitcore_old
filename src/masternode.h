@@ -34,7 +34,7 @@ class uint256;
 #define MASTERNODE_MIN_DSEEP_SECONDS           (30*60)
 #define MASTERNODE_MIN_DSEE_SECONDS            (5*60)
 #define MASTERNODE_PING_SECONDS                (1*60) //(1*60)
-#define MASTERNODE_PING_WAIT_SECONDS           (5*60)
+#define MASTERNODE_PING_WAIT_SECONDS           60
 #define MASTERNODE_EXPIRATION_SECONDS          (55*60*24*30*12*10) //Old 65*60
 #define MASTERNODE_REMOVAL_SECONDS             (60*60*24*30*12*10) //Old 70*60
 
@@ -42,12 +42,19 @@ using namespace std;
 
 class CMasternodePaymentWinner;
 
+typedef struct {
+    uint64_t nonce;
+    int64_t timestamp;
+} MnPingInfo;
+
 extern CCriticalSection cs_masternodes;
+//extern CCriticalSection cs_mapMnPing;
 extern std::vector<CMasterNode> vecMasternodes;
 extern CMasternodePayments masternodePayments;
 extern std::vector<CTxIn> vecMasternodeAskedFor;
 extern map<uint256, CMasternodePaymentWinner> mapSeenMasternodeVotes;
 extern map<int64_t, uint256> mapCacheBlockHashes;
+extern map<NodeId, MnPingInfo> mapMnPing;
 
 
 // manage the masternode connections
@@ -145,10 +152,10 @@ public:
 
         if(cacheInputAge == 0){
             cacheInputAge = GetInputAge(vin);
-            cacheInputAgeBlock = chainActive.Tip()->nHeight;
+            cacheInputAgeBlock = chainActive.Height();
         }
 
-        return cacheInputAge+(chainActive.Tip()->nHeight-cacheInputAgeBlock);
+        return cacheInputAge + (chainActive.Height() - cacheInputAgeBlock);
     }
 };
 

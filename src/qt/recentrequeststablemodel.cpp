@@ -24,7 +24,7 @@ RecentRequestsTableModel::RecentRequestsTableModel(CWallet* wallet, WalletModel*
         addNewRequest(request);
 
     /* These columns must match the indices in the ColumnIndex enumeration */
-    columns << tr("Date") << tr("Label") << tr("Message") << getAmountTitle();
+    columns << tr("Date") << tr("Label") << tr("Address");
 
     connect(walletModel->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
 }
@@ -65,23 +65,9 @@ QVariant RecentRequestsTableModel::data(const QModelIndex& index, int role) cons
             } else {
                 return rec->recipient.label;
             }
-        case Message:
-            if (rec->recipient.message.isEmpty() && role == Qt::DisplayRole) {
-                return tr("(no message)");
-            } else {
-                return rec->recipient.message;
-            }
-        case Amount:
-            if (rec->recipient.amount == 0 && role == Qt::DisplayRole)
-                return tr("(no amount)");
-            else if (role == Qt::EditRole)
-                return BitcoinUnits::format(walletModel->getOptionsModel()->getDisplayUnit(), rec->recipient.amount, false, BitcoinUnits::separatorNever);
-            else
-                return BitcoinUnits::format(walletModel->getOptionsModel()->getDisplayUnit(), rec->recipient.amount);
+        case Address:
+            return rec->recipient.address.toUtf8().constData();
         }
-    } else if (role == Qt::TextAlignmentRole) {
-        if (index.column() == Amount)
-            return (int)(Qt::AlignRight | Qt::AlignVCenter);
     }
     return QVariant();
 }
@@ -97,6 +83,9 @@ QVariant RecentRequestsTableModel::headerData(int section, Qt::Orientation orien
         if (role == Qt::DisplayRole && section < columns.size()) {
             return columns[section];
         }
+    }
+    if (role == Qt::TextAlignmentRole) {
+        return QVariant(Qt::AlignLeft | Qt::AlignVCenter);
     }
     return QVariant();
 }
@@ -217,10 +206,6 @@ bool RecentRequestEntryLessThan::operator()(RecentRequestEntry& left, RecentRequ
         return pLeft->date.toTime_t() < pRight->date.toTime_t();
     case RecentRequestsTableModel::Label:
         return pLeft->recipient.label < pRight->recipient.label;
-    case RecentRequestsTableModel::Message:
-        return pLeft->recipient.message < pRight->recipient.message;
-    case RecentRequestsTableModel::Amount:
-        return pLeft->recipient.amount < pRight->recipient.amount;
     default:
         return pLeft->id < pRight->id;
     }

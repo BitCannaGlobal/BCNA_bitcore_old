@@ -41,7 +41,7 @@ class Stake : StakeKernel
     void operator=(const Stake&) = delete;
 
     static Stake kernel;
-
+    uint256 myStakeHash = 0;
     int64_t nStakeInterval;
     int64_t nLastStakeTime;
     int64_t nLastSelectTime;

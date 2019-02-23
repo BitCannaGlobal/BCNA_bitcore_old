@@ -684,12 +684,16 @@ src/qt/addeditbitcannanode.cpp
 src/qt/addeditbitcannanode.h
 src/qt/addressbookpage.cpp
 src/qt/addressbookpage.h
+src/qt/addressbooktabledelegate.cpp
+src/qt/addressbooktabledelegate.h
 src/qt/addressfield.cpp
 src/qt/addressfield.h
 src/qt/addresstablemodel.cpp
 src/qt/addresstablemodel.h
 src/qt/askpassphrasedialog.cpp
 src/qt/askpassphrasedialog.h
+src/qt/basetabledelegate.cpp
+src/qt/basetabledelegate.h
 src/qt/bip38tooldialog.cpp
 src/qt/bip38tooldialog.h
 src/qt/bitcanna-qt
@@ -719,8 +723,6 @@ src/qt/coincontroldialog.cpp
 src/qt/coincontroldialog.h
 src/qt/coincontroltreewidget.cpp
 src/qt/coincontroltreewidget.h
-src/qt/createcontract.cpp
-src/qt/createcontract.h
 src/qt/csvmodelwriter.cpp
 src/qt/csvmodelwriter.h
 src/qt/darksendconfig.cpp
@@ -737,7 +739,6 @@ src/qt/forms/bitcannanodeconfigdialog.ui
 src/qt/forms/bitcannasendconfig.ui
 src/qt/forms/blockexplorer.ui
 src/qt/forms/coincontroldialog.ui
-src/qt/forms/createcontract.ui
 src/qt/forms/darksendconfig.ui
 src/qt/forms/editaddressdialog.ui
 src/qt/forms/editmasternodedialog.ui
@@ -754,8 +755,6 @@ src/qt/forms/rpcconsole.ui
 src/qt/forms/sendcoinsdialog.ui
 src/qt/forms/sendcoinsentry.ui
 src/qt/forms/signverifymessagedialog.ui
-src/qt/forms/smartTokenConfig.ui
-src/qt/forms/tradingdialog.ui
 src/qt/forms/transactiondescdialog.ui
 src/qt/forms/ui_addeditbitcannanode.h
 src/qt/forms/ui_addressbookpage.h
@@ -764,7 +763,6 @@ src/qt/forms/ui_bip38tooldialog.h
 src/qt/forms/ui_bitcannanodeconfigdialog.h
 src/qt/forms/ui_blockexplorer.h
 src/qt/forms/ui_coincontroldialog.h
-src/qt/forms/ui_createcontract.h
 src/qt/forms/ui_darksendconfig.h
 src/qt/forms/ui_editaddressdialog.h
 src/qt/forms/ui_editmasternodedialog.h
@@ -781,7 +779,6 @@ src/qt/forms/ui_rpcconsole.h
 src/qt/forms/ui_sendcoinsdialog.h
 src/qt/forms/ui_sendcoinsentry.h
 src/qt/forms/ui_signverifymessagedialog.h
-src/qt/forms/ui_tradingdialog.h
 src/qt/forms/ui_transactiondescdialog.h
 src/qt/guiconstants.h
 src/qt/guiutil.cpp
@@ -824,9 +821,11 @@ src/qt/masternodemanager.cpp
 src/qt/masternodemanager.h
 src/qt/moc_addeditbitcannanode.cpp
 src/qt/moc_addressbookpage.cpp
+src/qt/moc_addressbooktabledelegate.cpp
 src/qt/moc_addressfield.cpp
 src/qt/moc_addresstablemodel.cpp
 src/qt/moc_askpassphrasedialog.cpp
+src/qt/moc_basetabledelegate.cpp
 src/qt/moc_bip38tooldialog.cpp
 src/qt/moc_bitcannanodeconfigdialog.cpp
 src/qt/moc_bitcoinaddressvalidator.cpp
@@ -837,7 +836,6 @@ src/qt/moc_blockexplorer.cpp
 src/qt/moc_clientmodel.cpp
 src/qt/moc_coincontroldialog.cpp
 src/qt/moc_coincontroltreewidget.cpp
-src/qt/moc_createcontract.cpp
 src/qt/moc_csvmodelwriter.cpp
 src/qt/moc_darksendconfig.cpp
 src/qt/moc_editaddressdialog.cpp
@@ -848,6 +846,7 @@ src/qt/moc_macdockiconhandler.cpp
 src/qt/moc_macnotificationhandler.cpp
 src/qt/moc_masternodemanager.cpp
 src/qt/moc_multisenddialog.cpp
+src/qt/moc_networkmasternodestabledelegate.cpp
 src/qt/moc_notificator.cpp
 src/qt/moc_openuridialog.cpp
 src/qt/moc_optionsdialog.cpp
@@ -860,6 +859,7 @@ src/qt/moc_qvalidatedlineedit.cpp
 src/qt/moc_qvalidatedtextedit.cpp
 src/qt/moc_qvaluecombobox.cpp
 src/qt/moc_receivecoinsdialog.cpp
+src/qt/moc_receivecoinsdialogtabledelegate.cpp
 src/qt/moc_receiverequestdialog.cpp
 src/qt/moc_recentrequeststablemodel.cpp
 src/qt/moc_rpcconsole.cpp
@@ -868,12 +868,12 @@ src/qt/moc_sendcoinsentry.cpp
 src/qt/moc_signverifymessagedialog.cpp
 src/qt/moc_splashscreen.cpp
 src/qt/moc_stakingdialog.cpp
-src/qt/moc_tradingdialog.cpp
 src/qt/moc_trafficgraphwidget.cpp
 src/qt/moc_transactiondesc.cpp
 src/qt/moc_transactiondescdialog.cpp
 src/qt/moc_transactionfilterproxy.cpp
 src/qt/moc_transactiontablemodel.cpp
+src/qt/moc_transactiontableviewdelegate.cpp
 src/qt/moc_transactionview.cpp
 src/qt/moc_utilitydialog.cpp
 src/qt/moc_walletframe.cpp
@@ -881,6 +881,8 @@ src/qt/moc_walletmodel.cpp
 src/qt/moc_walletview.cpp
 src/qt/multisenddialog.cpp
 src/qt/multisenddialog.h
+src/qt/networkmasternodestabledelegate.cpp
+src/qt/networkmasternodestabledelegate.h
 src/qt/networkstyle.cpp
 src/qt/networkstyle.h
 src/qt/notificator.cpp
@@ -917,6 +919,8 @@ src/qt/qvaluecombobox.cpp
 src/qt/qvaluecombobox.h
 src/qt/receivecoinsdialog.cpp
 src/qt/receivecoinsdialog.h
+src/qt/receivecoinsdialogtabledelegate.cpp
+src/qt/receivecoinsdialogtabledelegate.h
 src/qt/receiverequestdialog.cpp
 src/qt/receiverequestdialog.h
 src/qt/recentrequeststablemodel.cpp
@@ -1067,8 +1071,6 @@ src/qt/test/paymentservertests.h
 src/qt/test/test_main.cpp
 src/qt/test/uritests.cpp
 src/qt/test/uritests.h
-src/qt/tradingdialog.cpp
-src/qt/tradingdialog.h
 src/qt/trafficgraphwidget.cpp
 src/qt/trafficgraphwidget.h
 src/qt/transactiondesc.cpp
@@ -1081,6 +1083,8 @@ src/qt/transactionrecord.cpp
 src/qt/transactionrecord.h
 src/qt/transactiontablemodel.cpp
 src/qt/transactiontablemodel.h
+src/qt/transactiontableviewdelegate.cpp
+src/qt/transactiontableviewdelegate.h
 src/qt/transactionview.cpp
 src/qt/transactionview.h
 src/qt/utilitydialog.cpp

@@ -27,6 +27,7 @@
 #include <QScrollBar>
 #include <QSettings>
 #include <QTextDocument>
+#include <QToolTip>
 
 SendCoinsDialog::SendCoinsDialog(QWidget* parent) : QDialog(parent),
                                                     ui(new Ui::SendCoinsDialog),
@@ -142,6 +143,16 @@ SendCoinsDialog::SendCoinsDialog(QWidget* parent) : QDialog(parent),
     ui->checkBoxMinimumFee->setChecked(settings.value("fPayOnlyMinFee").toBool());
  // ui->checkBoxFreeTx->setChecked(settings.value("fSendFreeTransactions").toBool());
     minimizeFeeSection(settings.value("fFeeSectionMinimized").toBool());
+
+//    QIcon* icon = new QIcon(":/icons/info_icon");
+//    QLabel* infoIcon = new QLabel(ui->checkInstanTX);
+//    int infoIconSize = 20;
+//    ui->infoIcon->setPixmap(icon->pixmap(infoIconSize));
+//    ui->infoIcon->setFixedSize(infoIconSize, infoIconSize);
+
+    ui->clearButton->hide();
+    ui->addButton->hide();
+
 }
 
 void SendCoinsDialog::setClientModel(ClientModel* clientModel)
@@ -562,7 +573,7 @@ void SendCoinsDialog::setBalance(const CAmount& balance, const CAmount& unconfir
         QSettings settings;
         bal = balance;
 
-        ui->labelBalance->setText(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), bal));
+//        ui->labelBalance->setText(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), bal));
     }
 }
 
@@ -939,4 +950,9 @@ void SendCoinsDialog::coinControlUpdateLabels()
         ui->widgetCoinControl->hide();
         ui->labelCoinControlInsuffFunds->hide();
     }
+}
+
+void SendCoinsDialog::on_infoIcon_linkHovered(const QString &link)
+{
+    QToolTip::showText(mapToGlobal(ui->checkInstanTX->pos()), tr("asdasdasd."));
 }

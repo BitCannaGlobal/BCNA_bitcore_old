@@ -33,10 +33,11 @@ void ProcessInstantX(CNode* pfrom, const std::string& strCommand, CDataStream& v
 {
     if(!IsSporkActive(SPORK_1_MASTERNODE_PAYMENTS_ENFORCEMENT)) return;
 
-    if (strCommand == "txlreq") {
+    if (strCommand == "ix") {
         isInstantXCommand = true;
 
-        //LogPrintf("ProcessMessageInstantX::txlreq\n");
+        if(fDebug) LogPrintf("ProcessInstantX::ix\n");
+
         CDataStream vMsg(vRecv);
         CTransaction tx;
         vRecv >> tx;
@@ -233,14 +234,14 @@ int64_t CreateNewLock(CTransaction tx)
         This prevents attackers from using transaction mallibility to predict which masternodes
         they'll use.
     */
-    int nBlockHeight = (chainActive.Tip()->nHeight - nTxAge)+4;
+    int nBlockHeight = (chainActive.Height() - nTxAge)+4;
 
     if (!mapTxLocks.count(tx.GetHash())){
         LogPrintf("CreateNewLock - New Transaction Lock %s !\n", tx.GetHash().ToString().c_str());
 
         CTransactionLock newLock;
         newLock.nBlockHeight = nBlockHeight;
-        newLock.nExpiration = GetTime()+(60*60); //locks expire after 15 minutes (6 confirmations)
+        newLock.nExpiration = GetTime()+(6*60); //locks expire after 15 minutes (6 confirmations)
         newLock.nTimeout = GetTime()+(60*5);
         newLock.txHash = tx.GetHash();
         mapTxLocks.insert(make_pair(tx.GetHash(), newLock));

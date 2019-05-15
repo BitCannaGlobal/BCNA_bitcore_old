@@ -53,7 +53,6 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet* 
                         isminetype mine = wallet->IsMine(wtx.vout[i]);
                         sub.involvesWatchAddress = mine & ISMINE_WATCH_ONLY;
                         sub.type = TransactionRecord::MNReward;
-                        LogPrintf("Reward: %d\n", wtx.vout[i].nValue);
                         if(wtx.vout[i].nValue == STATIC_GOVERNANCE_REWARD) {
                             sub.type = TransactionRecord::GovernanceReward;
                         }

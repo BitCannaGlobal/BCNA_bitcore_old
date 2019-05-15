@@ -90,7 +90,7 @@ static const unsigned int BLOCKFILE_CHUNK_SIZE = 0x1000000; // 16 MiB
 /** The pre-allocation chunk size for rev?????.dat files (since 0.8) */
 static const unsigned int UNDOFILE_CHUNK_SIZE = 0x100000; // 1 MiB
 /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
-static const int COINBASE_MATURITY = 10;
+static const int COINBASE_MATURITY = 119;
 /** Threshold for nLockTime: below this value it is interpreted as block number, otherwise as UNIX timestamp. */
 static const unsigned int LOCKTIME_THRESHOLD = 500000000; // Tue Nov  5 00:53:20 1985 UTC
 /** Maximum number of script-checking threads allowed */
@@ -129,8 +129,8 @@ static const int64_t STATIC_GOVERNANCE_REWARD = 4 * COIN;
 static const int64_t STATIC_MN_REWARD = 20 * COIN;
 static const int64_t STATIC_POS_REWARD = 40 * COIN;
 
-inline bool IsProtocolV2(int nHeight) { return IsTestNet() || nHeight > 0; }
-inline int64_t GetMNCollateral(int nHeight) { return 100000; } //TODO discuss about sum
+inline bool IsProtocolV2(int nHeight) { return IsTestNet() || nHeight > 6500; }
+inline int64_t GetMNCollateral(int nHeight) { return 100000; }
 
 struct BlockHasher {
     size_t operator()(const uint256& hash) const { return hash.GetLow64(); }
@@ -245,7 +245,7 @@ CAmount GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCou
 CAmount GetGovernancePayment();
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock, bool fProofOfStake);
 uint256 GetProofOfStakeLimit(int nHeight);
-inline unsigned int GetTargetSpacing(int nHeight) { return IsProtocolV2(nHeight) ? 240 : 60; }
+inline unsigned int GetTargetSpacing(int nHeight) { return 240; }
 
 bool ActivateBestChain(CValidationState& state, CBlock* pblock = NULL);
 CAmount GetProofOfWorkReward(int64_t nFees, int nHeight);
@@ -533,6 +533,7 @@ bool TestBlockValidity(CValidationState& state, const CBlock& block, CBlockIndex
 bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** pindex, CDiskBlockPos* dbp = NULL);
 bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex** ppindex = NULL);
 
+unsigned int GetnMaturity(int nHeight);
 
 class CBlockFileInfo
 {

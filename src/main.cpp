@@ -74,6 +74,8 @@ bool fAlerts = DEFAULT_ALERTS;
 uint256 bnProofOfStakeLimit = (~uint256(0) >> 1);
 uint256 bnProofOfStakeLimitV2 = (~uint256(0) >> 1);
 
+
+
 /** Fees smaller than this (in duffs) are considered zero fee (for relaying and mining)
  * We are ~100 times smaller then bitcoin now (2015-06-23), set minRelayTxFee only 10 times higher
  * so it's still 10 times lower comparing to bitcoin.
@@ -98,6 +100,10 @@ static void CheckBlockIndex();
 CScript COINBASE_FLAGS;
 
 const string strMessageMagic = "BitCanna Signed Message:\n";
+
+static unsigned int nMarutiryV1 = 10;
+static unsigned int nMarutiryV2 = 119;
+const int targetReadjustment_forkBlockHeight = 11550; //retargeting since 19,000 block
 
 // Internal stuff
 namespace
@@ -200,6 +206,27 @@ struct CMainSignals {
     boost::signals2::signal<void(const CBlock&, const CValidationState&)> BlockChecked;
 } g_signals;
 
+}
+
+bool IsProtocolMaturityV2(int nHeight)
+{
+    return(nHeight >= targetReadjustment_forkBlockHeight);
+}
+
+unsigned int GetnMaturity(int nHeight)
+{
+    if(IsProtocolMaturityV2(nHeight))
+        return nMarutiryV2;
+    else
+        return nMarutiryV1;
+}
+
+int GetMinPeerProtoVersion(int nHeight)
+{
+    if(nHeight!=0)
+        return(IsProtocolMaturityV2(nHeight)? NEW_PROTOCOL_VERSION : PROTOCOL_VERSION);
+    else
+        return NEW_PROTOCOL_VERSION; //if we build blockchain from the scratch, ask for a new version first
 }
 
 void RegisterValidationInterface(CValidationInterface* pwalletIn)
@@ -1615,10 +1642,7 @@ double ConvertBitsToDouble(unsigned int nBits)
 
 uint256 GetProofOfStakeLimit(int nHeight)
 {
-    if (IsProtocolV2(nHeight))
-        return bnProofOfStakeLimitV2;
-    else
-        return bnProofOfStakeLimit;
+    return bnProofOfStakeLimitV2;
 }
 
 CAmount GetProofOfWorkReward(int64_t nFees, int nHeight)
@@ -1847,7 +1871,8 @@ bool CheckInputs(const CTransaction& tx, CValidationState& state, const CCoinsVi
 
             // If prev is coinbase, check that it's matured
             if (coins->IsCoinBase() || coins->IsCoinStake()) {
-                if (nSpendHeight - coins->nHeight < Params().COINBASE_MATURITY())
+                LogPrintf("CheckInputs nSpendHeight=%d\n", nSpendHeight);
+                if (nSpendHeight - coins->nHeight < GetnMaturity(nSpendHeight))
                     return state.Invalid(
                         error("CheckInputs() : tried to spend coinbase at depth %d, coinstake=%d", nSpendHeight - coins->nHeight, coins->IsCoinStake()),
                         REJECT_INVALID, "bad-txns-premature-spend-of-coinbase");
@@ -5744,7 +5769,6 @@ std::string CBlockFileInfo::ToString() const
 {
     return strprintf("CBlockFileInfo(blocks=%u, size=%u, heights=%u...%u, time=%s...%s)", nBlocks, nSize, nHeightFirst, nHeightLast, DateTimeStrFormat("%Y-%m-%d", nTimeFirst), DateTimeStrFormat("%Y-%m-%d", nTimeLast));
 }
-
 
 class CMainCleanup
 {

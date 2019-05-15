@@ -588,8 +588,6 @@ void BitcoinGUI::createToolBars()
         toolbar->addAction(sendCoinsAction);
         toolbar->addAction(receiveCoinsAction);
         toolbar->addAction(historyAction);
-//        toolbar->addAction(stakingAction);
-//        toolbar->addAction(tradingAction);
         QSettings settings;
         if(GetBoolArg("-show_masternode", false)) {
             if (settings.value("fShowMasternodesTab").toBool()) {
@@ -605,7 +603,6 @@ void BitcoinGUI::createToolBars()
         toolbar->setGraphicsEffect(labelBalanceText);
 
 
-//        toolbar->addAction(smartToken);
         toolbar->setMovable(false); // remove unused icon in upper left corner
         overviewAction->setChecked(true);
 

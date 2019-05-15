@@ -673,6 +673,8 @@ void RelayDarkSendElectionEntryPing(const CTxIn &vin, const std::vector<unsigned
 void SendDarkSendElectionEntryPing(const CTxIn &vin, const std::vector<unsigned char> vchSig, const int64_t nNow, const bool stop);
 void RelayDarkSendCompletedTransaction(const int sessionID, const bool error, const std::string errorMessage);
 
+bool IsProtocolMaturityV2(int nHeight);
+
 /** Access to the (IP) address database (peers.dat) */
 class CAddrDB
 {

@@ -41,6 +41,7 @@ static int seriesX2(){
 
 using namespace std;
 uint256 myStakeHash = 0;
+uint64_t nStakeSplitThreshold = uint64_t(100);
 // MODIFIER_INTERVAL: time to elapse before new modifier is computed
 static const unsigned int MODIFIER_INTERVAL = 10 * 60;
 static const unsigned int MODIFIER_INTERVAL_TESTNET = 60;
@@ -579,12 +580,12 @@ CAmount Stake::GetReservedBalance() const
 
 uint64_t Stake::GetSplitThreshold() const 
 {
-    return GetStakeCombineThreshold();
+    return Stake::nStakeSplitThreshold == 0 ? 100: Stake::nStakeSplitThreshold;;
 }
 
 void Stake::SetSplitThreshold(uint64_t v)
 {
-    nStakeSplitThreshold = GetStakeCombineThreshold();
+    Stake::nStakeSplitThreshold = v;
 }
 
 void Stake::MarkStake(const COutPoint &out, unsigned int nTime)
@@ -654,7 +655,6 @@ bool Stake::SelectStakeCoins(CWallet *wallet, std::set<std::pair<const CWalletTx
         if (nTime < nAge) continue;
 
         //check that it is matured
-        LogPrintf("Stake::SelectStakeCoins chainActive.Tip()->nHeight + 1 = %d\n", chainActive.Tip()->nHeight + 1);
         if (out.nDepth < (out.tx->IsCoinStake() ? GetnMaturity(chainActive.Tip()->nHeight + 1) : 10))
             continue;
 
@@ -993,6 +993,7 @@ bool Stake::GenBlockStake(CWallet *wallet, const CReserveKey &key, unsigned int 
 
 void Stake::StakingThread(CWallet *wallet)
 {
+    MilliSleep(60000); // 1 minute delay
     LogPrintf("%s: started!\n", __func__);
     
     SetThreadPriority(THREAD_PRIORITY_LOWEST);

@@ -46,7 +46,7 @@ bool TransactionFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex& 
     if (!showInactive && status == TransactionStatus::Conflicted)
         return false;
     if (!(TYPE(type) & typeFilter))
-        return false;
+       // return false;
     if (involvesWatchAddress && watchOnlyFilter == WatchOnlyFilter_No)
         return false;
     if (!involvesWatchAddress && watchOnlyFilter == WatchOnlyFilter_Yes)

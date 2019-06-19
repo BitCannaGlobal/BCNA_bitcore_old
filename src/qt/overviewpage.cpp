@@ -379,9 +379,14 @@ void OverviewPage::updateAlerts(const QString& warnings)
 
 void OverviewPage::showOutOfSyncWarning(bool fShow)
 {
-    ui->labelWalletStatus->setVisible(fShow);
+    if(fShow){
+        ui->label_5->setText(QApplication::translate("OverviewPage", "<div style='text-align:left;margin-left:5px;'>Balance<br><span style='font-size:20px;color:red;'>(Out of sync)</span></div>", 0));
+    }else{
+        ui->label_5->setText(QApplication::translate("OverviewPage", "<div style='text-align:left'>Balance</div>", 0));
+    }
+    ui->labelWalletStatus->setVisible(false);
 //    ui->labelDarksendSyncStatus->setVisible(fShow);
-    ui->labelTransactionsStatus->setVisible(fShow);
+    ui->labelTransactionsStatus->setVisible(false);
 }
 
 void OverviewPage::updateDarksendProgress()

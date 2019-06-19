@@ -34,6 +34,7 @@
 #include <QTableView>
 #include <QUrl>
 #include <QVBoxLayout>
+#include <QSize>
 #include <QGraphicsDropShadowEffect>
 
 #include "moc_transactiontableviewdelegate.cpp"
@@ -44,19 +45,21 @@ TransactionView::TransactionView(QWidget* parent) : QWidget(parent), model(0), t
     QSettings settings;
     // Build filter row
     setContentsMargins(0, 0, 0, 0);
-
+    parent->setMaximumWidth(1200);
+    parent->setMinimumWidth(1100);
     QHBoxLayout* hlayout = new QHBoxLayout();
+
     hlayout->setContentsMargins(0, 0, 0, 0);
 #ifdef Q_OS_MAC
     hlayout->setSpacing(5);
     hlayout->addSpacing(26);
 #else
     hlayout->setSpacing(0);
-    hlayout->addSpacing(23);
+    hlayout->addSpacing(0);
 #endif
 
     watchOnlyWidget = new QComboBox(this);
-    watchOnlyWidget->setFixedWidth(24);
+    watchOnlyWidget->setFixedWidth(50);
     watchOnlyWidget->addItem("", TransactionFilterProxy::WatchOnlyFilter_All);
     watchOnlyWidget->addItem(QIcon(":/icons/eye_plus"), "", TransactionFilterProxy::WatchOnlyFilter_Yes);
     watchOnlyWidget->addItem(QIcon(":/icons/eye_minus"), "", TransactionFilterProxy::WatchOnlyFilter_No);
@@ -66,7 +69,7 @@ TransactionView::TransactionView(QWidget* parent) : QWidget(parent), model(0), t
 #ifdef Q_OS_MAC
     typeWidget->setFixedWidth(TYPE_COLUMN_WIDTH + 1);
 #else
-    typeWidget->setFixedWidth(TYPE_COLUMN_WIDTH);
+    typeWidget->setFixedWidth(200);
 #endif
 
     typeWidget->addItem(tr("All"), TransactionFilterProxy::ALL_TYPES);
@@ -92,7 +95,7 @@ TransactionView::TransactionView(QWidget* parent) : QWidget(parent), model(0), t
 #ifdef Q_OS_MAC
     dateWidget->setFixedWidth(121);
 #else
-    dateWidget->setFixedWidth(120);
+    dateWidget->setFixedWidth(160);
 #endif
     dateWidget->addItem(tr("All"), All);
     dateWidget->addItem(tr("Today"), Today);
@@ -106,11 +109,12 @@ TransactionView::TransactionView(QWidget* parent) : QWidget(parent), model(0), t
 
     addressWidget = new QLineEdit(this);
     addressWidget->setStyleSheet("height: 24px;");
+
 #if QT_VERSION >= 0x040700
     addressWidget->setPlaceholderText(tr("Enter address or label to search"));
 #endif
+    addressWidget->setFixedWidth(620);
     hlayout->addWidget(addressWidget);
-
     amountWidget = new QLineEdit(this);
     amountWidget->setStyleSheet("height: 24px;");
 #if QT_VERSION >= 0x040700
@@ -138,7 +142,7 @@ TransactionView::TransactionView(QWidget* parent) : QWidget(parent), model(0), t
 #ifdef Q_OS_MAC
     hlayout->addSpacing(width + 2);
 #else
-    hlayout->addSpacing(width);
+    hlayout->addSpacing(width+50);
 #endif
     // Always show scroll bar
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
@@ -207,13 +211,15 @@ void TransactionView::setModel(WalletModel* model)
         transactionProxyModel->setSortRole(Qt::EditRole);
 
         transactionView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        transactionView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
         transactionView->setModel(transactionProxyModel);
         transactionView->setSelectionBehavior(QAbstractItemView::SelectRows);
         transactionView->setSelectionMode(QAbstractItemView::ExtendedSelection);
         transactionView->setSortingEnabled(true);
         transactionView->sortByColumn(TransactionTableModel::Date, Qt::DescendingOrder);
-        transactionView->verticalHeader()->hide();
-
+        //transactionView->verticalHeader()->hide();
+        transactionView->horizontalHeader()->setFixedWidth(1050);
+        transactionView->setFixedWidth(1050);
         transactionView->setColumnWidth(TransactionTableModel::Status, STATUS_COLUMN_WIDTH);
         transactionView->setColumnWidth(TransactionTableModel::Watchonly, WATCHONLY_COLUMN_WIDTH);
         transactionView->setColumnWidth(TransactionTableModel::Date, DATE_COLUMN_WIDTH);

@@ -103,7 +103,7 @@ const string strMessageMagic = "BitCanna Signed Message:\n";
 
 static unsigned int nMarutiryV1 = 10;
 static unsigned int nMarutiryV2 = 119;
-const int targetReadjustment_forkBlockHeight = 11550; //retargeting since 19,000 block
+const int targetReadjustment_forkBlockHeight = 11550; //retargeting since 11550 block
 
 // Internal stuff
 namespace

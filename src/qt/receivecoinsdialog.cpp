@@ -102,10 +102,12 @@ void ReceiveCoinsDialog::setModel(WalletModel* model)
         tableView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         tableView->setModel(model->getRecentRequestsTableModel());
         tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+        tableView->horizontalHeader()->setFixedWidth(1000);
         tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
         tableView->setColumnWidth(RecentRequestsTableModel::Date, DATE_COLUMN_WIDTH);
         tableView->setColumnWidth(RecentRequestsTableModel::Label, LABEL_COLUMN_WIDTH);
         tableView->setColumnWidth(RecentRequestsTableModel::Address, ADDRESS_COLUMN_WIDTH);
+
 
         connect(tableView->selectionModel(),
             SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this,

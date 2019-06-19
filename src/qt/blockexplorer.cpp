@@ -220,7 +220,7 @@ std::string BlockToString(CBlockIndex* pBlock)
     }
     TxContent += "</table>";
 
-    int64_t Generated = GetProofOfStakeReward(0, 0, pBlock->nHeight) + GetMasternodePayment(pBlock->nHeight,0,0);
+    int64_t Generated = STATIC_POS_REWARD;
     if (pBlock->nHeight == 0) {
         Generated = OutVolume;
     } else if(pBlock->nHeight <= Params().LAST_POW_BLOCK()) {

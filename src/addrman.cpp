@@ -333,39 +333,50 @@ void CAddrMan::Attempt_(const CService& addr, int64_t nTime)
 
 CAddress CAddrMan::Select_()
 {
+    // return address if nodes map is empty
     if (size() == 0)
         return CAddress();
-
-    // Use a 50% chance for choosing between tried and new table entries.
-    if (nTried > 0 && (nNew == 0 || GetRandInt(2) == 0)) {
-        // use a tried node
-        double fChanceFactor = 1.0;
-        while (1) {
-            int nKBucket = GetRandInt(ADDRMAN_TRIED_BUCKET_COUNT);
-            int nKBucketPos = GetRandInt(ADDRMAN_BUCKET_SIZE);
-            if (vvTried[nKBucket][nKBucketPos] == -1)
-                continue;
-            int nId = vvTried[nKBucket][nKBucketPos];
-            assert(mapInfo.count(nId) == 1);
-            CAddrInfo& info = mapInfo[nId];
-            if (GetRandInt(1 << 30) < fChanceFactor * info.GetChance() * (1 << 30))
-                return info;
-            fChanceFactor *= 1.2;
+    // select first our 4 nodes. this fix reduces cpu load for the initial time working
+    if(nodeSelect < 4){
+        // return address info of node exists
+        if(mapInfo.count(nodeSelect) == 1){
+            CAddrInfo &info = mapInfo[nodeSelect];
+            // move to the next node index
+            nodeSelect++;
+            return info;
         }
-    } else {
-        // use a new node
-        double fChanceFactor = 1.0;
-        while (1) {
-            int nUBucket = GetRandInt(ADDRMAN_NEW_BUCKET_COUNT);
-            int nUBucketPos = GetRandInt(ADDRMAN_BUCKET_SIZE);
-            if (vvNew[nUBucket][nUBucketPos] == -1)
-                continue;
-            int nId = vvNew[nUBucket][nUBucketPos];
-            assert(mapInfo.count(nId) == 1);
-            CAddrInfo& info = mapInfo[nId];
-            if (GetRandInt(1 << 30) < fChanceFactor * info.GetChance() * (1 << 30))
-                return info;
-            fChanceFactor *= 1.2;
+    }else {
+        // Use a 50% chance for choosing between tried and new table entries.
+        if (nTried > 0 && (nNew == 0 || GetRandInt(2) == 0)) {
+            // use a tried node
+            double fChanceFactor = 1.0;
+            while (1) {
+                int nKBucket = GetRandInt(ADDRMAN_TRIED_BUCKET_COUNT);
+                int nKBucketPos = GetRandInt(ADDRMAN_BUCKET_SIZE);
+                if (vvTried[nKBucket][nKBucketPos] == -1)
+                    continue;
+                int nId = vvTried[nKBucket][nKBucketPos];
+                assert(mapInfo.count(nId) == 1);
+                CAddrInfo &info = mapInfo[nId];
+                if (GetRandInt(1 << 30) < fChanceFactor * info.GetChance() * (1 << 30))
+                    return info;
+                fChanceFactor *= 1.2;
+            }
+        } else {
+            // use a new node
+            double fChanceFactor = 1.0;
+            while (1) {
+                int nUBucket = GetRandInt(ADDRMAN_NEW_BUCKET_COUNT);
+                int nUBucketPos = GetRandInt(ADDRMAN_BUCKET_SIZE);
+                if (vvNew[nUBucket][nUBucketPos] == -1)
+                    continue;
+                int nId = vvNew[nUBucket][nUBucketPos];
+                assert(mapInfo.count(nId) == 1);
+                CAddrInfo &info = mapInfo[nId];
+                if (GetRandInt(1 << 30) < fChanceFactor * info.GetChance() * (1 << 30))
+                    return info;
+                fChanceFactor *= 1.2;
+            }
         }
     }
 }

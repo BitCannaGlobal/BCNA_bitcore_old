@@ -489,7 +489,7 @@ int TableViewLastColumnResizingFixer::getAvailableWidthForColumn(int column)
         nResult = std::max(nResult, nTableWidth - nOtherColsWidth);
     }
 
-    return nResult;
+    return nResult-25;
 }
 
 // Make sure we don't make the columns wider than the tables viewport width.

@@ -910,7 +910,7 @@ public:
             if (fUseCache && fImmatureCreditCached)
                 return nImmatureCreditCached;
             nImmatureCreditCached = pwallet->GetCredit(*this, ISMINE_SPENDABLE);
-            fImmatureCreditCached = true;
+            fImmatureCreditCached = false;
             return nImmatureCreditCached;
         }
 

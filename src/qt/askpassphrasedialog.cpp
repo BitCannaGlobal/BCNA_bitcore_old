@@ -11,7 +11,7 @@
 #include "walletmodel.h"
 
 #include "allocators.h"
-
+#include <QtWidgets>
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <QPushButton>
@@ -42,6 +42,11 @@ AskPassphraseDialog::AskPassphraseDialog(Mode mode, QWidget* parent, WalletModel
     switch (mode) {
     case Encrypt: // Ask passphrase x2
         ui->warningLabel->setText(tr("Enter the new passphrase to the wallet.<br/>Please use a passphrase of <b>ten or more random characters</b>, or <b>eight or more words</b>."));
+        
+        ui->preloaderLabel->setAlignment(Qt::AlignCenter);
+        ui->preloaderLabel->setStyleSheet("QLabel { color : red; }");
+        ui->preloaderLabel->hide();
+        
         ui->passLabel1->hide();
         ui->passEdit1->hide();
         setWindowTitle(tr("Encrypt wallet"));
@@ -110,6 +115,7 @@ void AskPassphraseDialog::accept()
 
     switch (mode) {
     case Encrypt: {
+        ui->preloaderLabel->show();
         if (newpass1.empty() || newpass2.empty()) {
             // Cannot encrypt with empty passphrase
             break;
@@ -133,12 +139,14 @@ void AskPassphraseDialog::accept()
                                "will become useless as soon as you start using the new, encrypted wallet.") +
                             "</b></qt>");
                     QApplication::quit();
+                    // QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
                 } else {
                     QMessageBox::critical(this, tr("Wallet encryption failed"),
                         tr("Wallet encryption failed due to an internal error. Your wallet was not encrypted."));
                 }
                 QDialog::accept(); // Success
             } else {
+                ui->preloaderLabel->hide();
                 QMessageBox::critical(this, tr("Wallet encryption failed"),
                     tr("The supplied passphrases do not match."));
             }

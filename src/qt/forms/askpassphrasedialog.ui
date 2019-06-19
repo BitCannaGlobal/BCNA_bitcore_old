@@ -126,6 +126,13 @@
      </item>
     </layout>
    </item>
+    <item>
+     <widget class="QLabel" name="preloaderLabel">
+     <property name="text">
+        <string>Wallet encrypting may take some time. Please wait!</string>
+       </property>
+     </widget>
+    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">

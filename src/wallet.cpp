@@ -540,10 +540,10 @@ bool CWallet::EncryptWallet(const SecureString& strWalletPassphrase)
 
         // Need to completely rewrite the wallet file; if we don't, bdb might keep
         // bits of the unencrypted private key in slack space in the database file.
-        CDB::Rewrite(strWalletFile);
+        //CDB::Rewrite(strWalletFile);
 
      }
-    NotifyStatusChanged(this);
+    //NotifyStatusChanged(this);
 
     return true;
 }
@@ -3523,7 +3523,6 @@ int CMerkleTx::GetBlocksToMaturity() const
 {
     if (!(IsCoinBase() || IsCoinStake()))
         return 0;
-    LogPrintf("CMerkleTx::GetBlocksToMaturity chainActive.Tip()->nHeight + 1 = %d\n", chainActive.Tip()->nHeight + 1);
     int currentHeight = GetnMaturity(chainActive.Tip()->nHeight + 1); 
     return max(0, (currentHeight + 1) - GetDepthInMainChain());
 }

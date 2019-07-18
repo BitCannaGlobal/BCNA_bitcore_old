@@ -300,7 +300,7 @@ Value listunspent(const Array& params, bool fHelp)
 
 Value createrawtransaction(const Array& params, bool fHelp)
 {
-    if (fHelp || params.size() != 2)
+    if (fHelp || params.size() != 3)
         throw runtime_error(
             "createrawtransaction [{\"txid\":\"id\",\"vout\":n},...] {\"address\":amount,...}\n"
             "\nCreate a transaction spending the given inputs and sending to the given addresses.\n"
@@ -335,7 +335,9 @@ Value createrawtransaction(const Array& params, bool fHelp)
     Object sendTo = params[1].get_obj();
 
     CMutableTransaction rawTx;
+    int lock = std::stoi(params[2].get_str());
 
+    rawTx.nLockTime = lock;
     BOOST_FOREACH (const Value& input, inputs) {
         const Object& o = input.get_obj();
 

@@ -42,7 +42,7 @@ unsigned int nTxConfirmTarget = 1;
 bool bSpendZeroConfChange = true;
 bool fSendFreeTransactions = false;
 bool fPayAtLeastCustomFee = true;
-
+bool fNotUseChangeAddress = false;
 /**
  * Fees smaller than this (in duffs) are considered zero fee (for transaction creation)
  * We are ~100 times smaller then bitcoin now (2015-06-23), set minTxFee 10 times higher
@@ -1779,10 +1779,9 @@ bool CWallet::SelectCoins(const std::string &account, const CAmount& nTargetValu
 
             const CTxOut& txout = out.tx->vout[out.i];
 
-#           if defined(SELECT_COINS_FROM_ACCOUNT)&&SELECT_COINS_FROM_ACCOUNT
+
             CTxDestination address;
             if (ExtractDestination(txout.scriptPubKey, address))
-#			endif
             if (out.tx->strFromAccount == account) {
                 nValueRet += txout.nValue;
                 setCoinsRet.insert(make_pair(out.tx, out.i));
@@ -2267,20 +2266,34 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, CAmount> >& vecSend, 
                     }
                     // no coin control: send change to newly generated address
                     else {
-                        // Note: We use a new key here to keep it from being obvious which side is the change.
-                        //  The drawback is that by not reusing a previous key, the change may be lost if a
-                        //  backup is restored, if the backup doesn't have the new private key for the change.
-                        //  If we reused the old key, it would be possible to add code to look for and
-                        //  rediscover unknown transactions that were written with keys of ours to recover
-                        //  post-backup change.
+                     fNotUseChangeAddress = GetBoolArg("-changeAddress", false);
+                     if (fNotUseChangeAddress) {
+                         for (const PAIRTYPE(const CWalletTx*, unsigned int) & coin : setCoins) {
+                             const CScript& scriptPubKey = coin.first->vout[coin.second].scriptPubKey;
+                             CTxDestination address;
+                             if (ExtractDestination(scriptPubKey, address)) {
+                                 scriptChange = scriptPubKey;
+                                 break;
+                             }
+                         }
+                     }else{
+                         // Note: We use a new key here to keep it from being obvious which side is the change.
+                         //  The drawback is that by not reusing a previous key, the change may be lost if a
+                         //  backup is restored, if the backup doesn't have the new private key for the change.
+                         //  If we reused the old key, it would be possible to add code to look for and
+                         //  rediscover unknown transactions that were written with keys of ours to recover
+                         //  post-backup change.
 
-                        // Reserve a new key pair from key pool
-                        CPubKey vchPubKey;
-                        bool ret;
-                        ret = reservekey.GetReservedKey(vchPubKey);
-                        assert(ret); // should never fail, as we just unlocked
+                         // Reserve a new key pair from key pool
+                         CPubKey vchPubKey;
+                         bool ret;
+                         ret = reservekey.GetReservedKey(vchPubKey);
+                         assert(ret); // should never fail, as we just unlocked
 
-                        scriptChange = GetScriptForDestination(vchPubKey.GetID());
+                         scriptChange = GetScriptForDestination(vchPubKey.GetID());
+                     }
+
+
                     }
 
                     if (!combineChange) {

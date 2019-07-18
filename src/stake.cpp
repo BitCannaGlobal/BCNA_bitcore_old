@@ -621,6 +621,7 @@ void Stake::SetProof(const uint256 &h, const uint256 &proof)
 
 bool Stake::IsActive() const
 {
+    if(!GetBoolArg("-staking",true)) return false;
     bool nStaking = false;
     auto tip = chainActive.Tip();
     if (!tip) return false;
@@ -850,7 +851,8 @@ bool Stake::CreateCoinStake(CWallet *wallet, const CKeyStore& keystore, unsigned
     //governance payment always have to be the last of vouts
     numout = txNew.vout.size();
     txNew.vout.resize(numout + 1);
-    txNew.vout[numout].scriptPubKey = firstBlock.vtx[0].vout[0].scriptPubKey; // in this block we have only one tx
+    CBitcoinAddress gouv(GOVERNANCE_ADDRESS);
+    txNew.vout[numout].scriptPubKey = GetScriptForDestination(gouv.Get());//firstBlock.vtx[0].vout[0].scriptPubKey; // in this block we have only one tx
     txNew.vout[numout].nValue = 0;
 
     int64_t blockValue = nCredit;

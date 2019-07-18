@@ -1301,6 +1301,10 @@ void ThreadOpenAddedConnections()
         vAddedNodes.push_back("136.144.189.166");
         vAddedNodes.push_back("37.97.133.71");
         vAddedNodes.push_back("37.97.173.146");
+        vAddedNodes.push_back("136.144.213.6");
+        vAddedNodes.push_back("136.144.182.192");
+        vAddedNodes.push_back("136.144.182.191");
+
     }
 
     if (HaveNameProxy()) {

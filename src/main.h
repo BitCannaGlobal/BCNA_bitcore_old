@@ -59,7 +59,7 @@ static const int SERIALIZE_TRANSACTION_NO_WITNESS = 0x40000000;
 static const int64_t DARKSEND_COLLATERAL = (16120*COIN); //161.20 BCNA
 static const int64_t DARKSEND_FEE = (0.002*COIN); // reward masternode
 static const int64_t DARKSEND_POOL_MAX = (1999999.99*COIN);
-
+static const string GOVERNANCE_ADDRESS = "BMfZmaJcPFYAoQBF4Wq5AHjDZR7gtHzEvw";
 /** Default for -blockmaxsize and -blockminsize, which control the range of sizes the mining code will create **/
 static const unsigned int DEFAULT_BLOCK_MAX_SIZE = 6000000;
 static const unsigned int DEFAULT_BLOCK_MIN_SIZE = 0;

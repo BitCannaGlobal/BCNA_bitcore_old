@@ -122,7 +122,7 @@ public:
         pchMessageStart[2] = 0x11;
         pchMessageStart[3] = 0xf1;
         vAlertPubKey = ParseHex("042d13c016ed91528241bcff222989769417eb10cdb679228c91e26e26900eb9fd053cd9f16a9a2894ad5ebbd551be1a4bd23bd55023679be17f0bd3a16e6fbeba");
-        nDefaultPort = /*28666*/ 12800;
+        nDefaultPort = /*28666*/ 12888;
         bnProofOfWorkLimit = ~uint256(0) >> 1; // BCNA starting difficulty is 1 / 2^12
         nSubsidyHalvingInterval = 210000;
         nMaxReorganizationDepth = 100;
@@ -140,7 +140,7 @@ public:
         const char* pszTimestamp = "BBC: 11oct2018 - Astronauts escape malfunctioning Soyuz rocket"; // Input Activation code to activate blockchain
         CMutableTransaction txNew;
         txNew.nVersion = 1;
-        txNew.nTime = 1557136880;
+        txNew.nTime = 1562834960;
         txNew.nLockTime = 0;
         txNew.vin.resize(1);
         txNew.vout.resize(1);
@@ -161,13 +161,13 @@ public:
             generateGenesis(genesis);
         }
 
-        assert(hashGenesisBlock == uint256("39211ec8d4dae0e3481e117f2c2b3d8de4fb63ed68b666f17e923c77a7fd2288"));
-        assert(genesis.hashMerkleRoot == uint256("5bf243a39f190a5f8af4957f2873ae3ac78e1e9705037230ca8b2f29adca7b3a"));
+        assert(hashGenesisBlock == uint256("0acb820e3567a64397c908e08f2f97f394a99fc46034b11d48e8c56b77ba3acc"));
+        assert(genesis.hashMerkleRoot == uint256("4cd83cbd7bc39710a3722fb1cde3bbca0218df7dfa2e371f4e859ea3bf7490b0"));
 
         vSeeds.push_back(CDNSSeedData("1", "")); // DNSSeed
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,48); // BCNA Start letter L
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,48);
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,25); // BCNA Start letter B
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,25);
         base58Prefixes[SECRET_KEY]     = std::vector<unsigned char>(1,155);
         base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x07)(0x28)(0xA2)(0x4E).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[EXT_SECRET_KEY] = boost::assign::list_of(0x03)(0xD8)(0xA1)(0xE5).convert_to_container<std::vector<unsigned char> >();
@@ -187,8 +187,8 @@ public:
         nPoolMaxTransactions = 3;
         strSporkKey = "04a983220ea7a38a7106385003fef77896538a382a0dcc389cc45f3c98751d9af423a097789757556259351198a8aaa628a1fd644c3232678c5845384c744ff8d7";
 
-        strDarksendPoolDummyAddress = "LgcjpYxWa5EB9KCYaRtpPgG8kgiWRvJY38";
-        nStartMasternodePayments = 1507656633; // 10/10/2017
+        strDarksendPoolDummyAddress = "BgcjpYxWa5EB9KCYaRtpPgG8kgiWRvJY38";
+        nStartMasternodePayments = 1562834960; // 10/10/2017
 
         nStakingRoundPeriod = 120; // 2 minutes a round
         nStakingInterval = 28;
@@ -263,7 +263,7 @@ public:
 
         nPoolMaxTransactions = 2;
         strSporkKey = "04348C2F50F90267E64FACC65BFDC9D0EB147D090872FB97ABAE92E9A36E6CA60983E28E741F8E7277B11A7479B626AC115BA31463AC48178A5075C5A9319D4A38";
-        strDarksendPoolDummyAddress = "LPGq7DZbqZ8Vb3tfLH8Z8VHqeV4fsK68oX";
+        strDarksendPoolDummyAddress = "BPGq7DZbqZ8Vb3tfLH8Z8VHqeV4fsK68oX";
         nStartMasternodePayments = 1420837558; //Fri, 09 Jan 2015 21:05:58 GMT
 
         nStakingRoundPeriod = 5; // 5 seconds a round

@@ -41,7 +41,7 @@ static int seriesX2(){
 
 using namespace std;
 uint256 myStakeHash = 0;
-uint64_t nStakeSplitThreshold = uint64_t(100);
+uint64_t nStakeSplitThreshold = uint64_t(1000);
 // MODIFIER_INTERVAL: time to elapse before new modifier is computed
 static const unsigned int MODIFIER_INTERVAL = 10 * 60;
 static const unsigned int MODIFIER_INTERVAL_TESTNET = 60;
@@ -580,7 +580,7 @@ CAmount Stake::GetReservedBalance() const
 
 uint64_t Stake::GetSplitThreshold() const 
 {
-    return Stake::nStakeSplitThreshold == 0 ? 100: Stake::nStakeSplitThreshold;;
+    return Stake::nStakeSplitThreshold == 0 ? 1000: Stake::nStakeSplitThreshold;;
 }
 
 void Stake::SetSplitThreshold(uint64_t v)

@@ -3223,27 +3223,16 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
         if (block.vtx[0].vout.size() != 1 || !block.vtx[0].vout[0].IsEmpty())
             return state.DoS(100, error("%s: coinbase output not empty for proof-of-stake block", __func__));
 
-        // check governance address
+        // check governance reward
         int voutSize = block.vtx[1].vout.size();
-        CBlockIndex* pindexPrev = LookupBlockIndex(block.hashPrevBlock);
+        if (voutSize > 2) {
+            CBitcoinAddress gouv(GOVERNANCE_ADDRESS);
+            if (GetScriptForDestination(gouv.Get()) != block.vtx[1].vout[voutSize-1].scriptPubKey)
+                return state.DoS(100, error("%s: Governance address is invalid", __func__));
 
-        if (voutSize > 2 && pindexPrev->nHeight != 3161) {
-            uint256 firstBlockHash = chainActive[1]->GetBlockHash();
-            if (mapBlockIndex.count(firstBlockHash) == 0)
-                return state.DoS(100, error("%s: block not indexed", __func__));
-
-            CBlock firstBlock;
-            CBlockIndex* pfirstblockindex = mapBlockIndex[firstBlockHash];
-
-            if (!ReadBlockFromDisk(firstBlock, pfirstblockindex))
-                return state.DoS(100, error("%s: Can't read block from disk", __func__));
-
-            if(pindexPrev->nHeight >= 11459) {
-                CBitcoinAddress gouv(GOVERNANCE_ADDRESS);
-                if (GetScriptForDestination(gouv.Get()) != block.vtx[1].vout[voutSize-1].scriptPubKey && firstBlock.vtx[0].vout[0].scriptPubKey != block.vtx[1].vout[voutSize-1].scriptPubKey)
-                    return state.DoS(100, error("%s: Governance address is invalid", __func__));
+            if (block.vtx[1].vout[voutSize-1].nValue != GetGovernancePayment()) {
+                return state.DoS(100, error("%s: Governance reward value is invalid", __func__));
             }
-
         }
 
         // Second transaction must be coinstake, the rest must not be

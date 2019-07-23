@@ -131,16 +131,16 @@ public:
         nToCheckBlockUpgradeMajority = 1000;
         nMinerThreads = 0;
         nTargetTimespan = 25 * 30; // BCNA: 1 36hrs
-        nTargetSpacing = 30;  // BCNA: 2 minute
+        nTargetSpacing = 30;  // BCNA: 30sec
         nLastPOWBlock = 100;
         nMaturity = 119;
         nMasternodeCountDrift = 20;
         nModifierUpdateBlock = 615800;
 
-        const char* pszTimestamp = "BBC: 11oct2018 - Astronauts escape malfunctioning Soyuz rocket"; // Input Activation code to activate blockchain
+        const char* pszTimestamp = "BBC: 22Jul2019 -  India launches second Moon mission"; // Input Activation code to activate blockchain
         CMutableTransaction txNew;
         txNew.nVersion = 1;
-        txNew.nTime = 1562834960;
+        txNew.nTime = 1563807908;
         txNew.nLockTime = 0;
         txNew.vin.resize(1);
         txNew.vout.resize(1);
@@ -161,8 +161,8 @@ public:
             generateGenesis(genesis);
         }
 
-        assert(hashGenesisBlock == uint256("0acb820e3567a64397c908e08f2f97f394a99fc46034b11d48e8c56b77ba3acc"));
-        assert(genesis.hashMerkleRoot == uint256("4cd83cbd7bc39710a3722fb1cde3bbca0218df7dfa2e371f4e859ea3bf7490b0"));
+        assert(hashGenesisBlock == uint256("485f1ae493ff94eb5465d3eba0b35c8cf179d668b7aee8adbf0cecf4154ab04d"));
+        assert(genesis.hashMerkleRoot == uint256("fa30e16c7df4bbb8175bc8a3476280b4d1348f51415ca0d8ee9affbcb8010319"));
 
         vSeeds.push_back(CDNSSeedData("1", "")); // DNSSeed
 
@@ -188,7 +188,7 @@ public:
         strSporkKey = "04a983220ea7a38a7106385003fef77896538a382a0dcc389cc45f3c98751d9af423a097789757556259351198a8aaa628a1fd644c3232678c5845384c744ff8d7";
 
         strDarksendPoolDummyAddress = "BgcjpYxWa5EB9KCYaRtpPgG8kgiWRvJY38";
-        nStartMasternodePayments = 1562834960; // 10/10/2017
+        nStartMasternodePayments = 1563801980; // 22/07/2019
 
         nStakingRoundPeriod = 120; // 2 minutes a round
         nStakingInterval = 28;

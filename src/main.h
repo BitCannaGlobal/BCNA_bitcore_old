@@ -126,7 +126,7 @@ static const unsigned char REJECT_INSUFFICIENTFEE = 0x42;
 static const unsigned char REJECT_CHECKPOINT = 0x43;
 
 static const int64_t STATIC_GOVERNANCE_REWARD = 1.2 * COIN;
-static const int64_t STATIC_MN_REWARD = 4.8 * COIN;
+static const int64_t STATIC_MN_REWARD = 6 * COIN;
 static const int64_t STATIC_POS_REWARD = 12 * COIN;
 
 inline bool IsProtocolV2(int nHeight) { return IsTestNet() || nHeight > 6500; }

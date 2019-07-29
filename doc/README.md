@@ -26,7 +26,7 @@ Drag BCNA-Qt to your applications folder, and then run BCNA-Qt.
 
 ### Need Help?
 
-* See the documentation at the [BCNA Wiki](https://github.com/216k155/bitcanna/wiki) ***TODO***
+* See the documentation at the [BCNA Wiki](https://github.com/BitCannaGlobal/BCNA/wiki) ***TODO***
 for help and more information.
 * Ask for help on [BitcoinTalk](https://bitcointalk.org/index.php?topic=2254046.0) or on the [BCNA Telegram](https://t.me/BCNAcoinOfficialChat).
 

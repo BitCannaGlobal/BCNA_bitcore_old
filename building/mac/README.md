@@ -8,7 +8,7 @@
 2. Clone bitcanna repository
     
     ```shell
-    git clone https://github.com/216k155/bitcanna
+    git clone https://github.com/BitCannaGlobal/BCNA
     ```
 
 3. Ensure mysql and boost installed.

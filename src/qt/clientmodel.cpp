@@ -61,7 +61,7 @@ int ClientModel::getNumConnections(unsigned int flags) const
 
     int nNum = 0;
     BOOST_FOREACH (CNode* pnode, vNodesCopy)
-        if (flags & (pnode->fInbound ? CONNECTIONS_IN : CONNECTIONS_OUT))
+        if ( pnode && (flags & (pnode->fInbound ? CONNECTIONS_IN : CONNECTIONS_OUT)))
             nNum++;
 
     return nNum;

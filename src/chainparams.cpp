@@ -191,7 +191,7 @@ public:
         nStartMasternodePayments = 1563801980; // 22/07/2019
 
         nStakingRoundPeriod = 120; // 2 minutes a round
-        nStakingInterval = 28;
+        nStakingInterval = 30;
         nStakingMinAge = 10 * 60; // TODO maybe will have to increase
     }
 

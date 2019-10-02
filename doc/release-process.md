@@ -24,10 +24,10 @@ If you're using the automated script (found in [contrib/gitian-build.sh](/contri
 Check out the source code in the following directory hierarchy.
 
     cd /path/to/your/toplevel/build
-    git clone https://github.com/216k155/gitian.sigs.git
-    git clone https://github.com/216k155/bitcanna-detached-sigs.git
+    git clone https://github.com/BitCannaGlobal/gitian.sigs.git
+    git clone https://github.com/BitCannaGlobal/bitcanna-detached-sigs.git
     git clone https://github.com/devrandom/gitian-builder.git
-    git clone https://github.com/216k155/bitcanna.git
+    git clone https://github.com/BitCannaGlobal/bitcanna.git
 
 ### BCNA maintainers/release engineers, suggestion for writing release notes
 

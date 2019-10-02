@@ -1104,7 +1104,7 @@ void CWallet::ReacceptWalletTransactions()
 
 bool CWalletTx::InMempool() const
 {
-    LOCK(mempool.cs);
+    //LOCK(mempool.cs);
     if (mempool.exists(GetHash())) {
         return true;
     }

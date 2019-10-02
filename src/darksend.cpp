@@ -388,8 +388,8 @@ void ProcessDarksend(CNode* pfrom, const std::string& strCommand, CDataStream& v
 
         vector<CTxIn> sigs;
         vRecv >> sigs;
-
-        bool success = false;
+      
+        std::atomic<bool> success(false);
         int count = 0;
 
         LogPrintf(" -- sigs count %d %d\n", (int)sigs.size(), count);
@@ -1521,6 +1521,7 @@ bool CDarkSendPool::DoAutomaticDenominating(bool fDryRun, bool ready)
                     LOCK(cs_vNodes);
                     BOOST_FOREACH(CNode* pnode, vNodes)
                     {
+                        if (!pnode) continue;
                     	if((CNetAddr)pnode->addr != (CNetAddr)submittedToMasternode) continue;
 
                         std::string strReason;
@@ -1582,6 +1583,7 @@ bool CDarkSendPool::DoAutomaticDenominating(bool fDryRun, bool ready)
                 LOCK(cs_vNodes);
                 BOOST_FOREACH(CNode* pnode, vNodes)
                 {
+                    if (!pnode) continue;
                     if((CNetAddr)pnode->addr != (CNetAddr)vecMasternodes[i].addr) continue;
 
                     std::string strReason;
@@ -2087,8 +2089,10 @@ bool CDarksendQueue::Relay()
 
     LOCK(cs_vNodes);
     BOOST_FOREACH(CNode* pnode, vNodes){
-        // always relay to everyone
-        pnode->PushMessage("dsq", (*this));
+        if (pnode) {
+            // always relay to everyone
+            pnode->PushMessage("dsq", (*this));
+        }
     }
 
     return true;
@@ -2131,51 +2135,22 @@ void ThreadCheckDarkSendPool()
         //LogPrintf("ThreadCheckDarkSendPool::check timeout\n");
         darkSendPool.CheckTimeout();
 
-        if(c % 60 == 0){
-            LOCK(cs_main);
-            /*
-                cs_main is required for doing masternode.Check because something
-                is modifying the coins view without a mempool lock. It causes
-                segfaults from this code without the cs_main lock.
-            */
-	    {
-
-	    LOCK(cs_masternodes);
-            vector<CMasterNode>::iterator it = vecMasternodes.begin();
-            //check them separately
-            while(it != vecMasternodes.end()){
-                (*it).Check();
-                ++it;
-            }
-
- 	    int count = vecMasternodes.size();
-            int i = 0;
-
-
-            //remove inactive
-            it = vecMasternodes.begin();
-            while(it != vecMasternodes.end()){
-                LogPrintf("Activity: %s:%d\n", (*it).addr.ToString().c_str(), (*it).enabled);
-                if((*it).enabled == 4 || (*it).enabled == 3){
-                    LogPrintf("Removing inactive masternode %s\n", (*it).addr.ToString().c_str());
-                    it = vecMasternodes.erase(it);
-                } else {
-                    ++it;
-                }
-            }
-
-            BOOST_FOREACH(CMasterNode mn, vecMasternodes) {
-
-                if(mn.addr.IsRFC1918()) continue; //local network
-                if(mn.IsEnabled()) {
-                    if(fDebug) LogPrintf("Sending masternode entry - %s \n", mn.addr.ToString().c_str());
-                    BOOST_FOREACH(CNode* pnode, vNodes) {
-                        pnode->PushMessage("dsee", mn.vin, mn.addr, mn.sig, mn.now, mn.pubkey, mn.pubkey2, count, i, mn.lastTimeSeen, mn.protocolVersion);
+        if (c % 60 == 0) {
+        {
+                LOCK(cs_masternodes);
+                vector<CMasterNode>::iterator it = vecMasternodes.begin();
+                //check them separately
+                while(it != vecMasternodes.end()) {
+                    LogPrintf("Activity: %s:%d\n", (*it).addr.ToString().c_str(), (*it).enabled);
+                    (*it).Check();
+                    if ((*it).enabled == 4 || (*it).enabled == 3) {
+                        LogPrintf("Removing inactive masternode %s\n", (*it).addr.ToString().c_str());
+                        it = vecMasternodes.erase(it);
+                    } else {
+                        ++it;
                     }
                 }
-                i++;
             }
-	    }
 
             masternodePayments.CleanPaymentList();
             CleanTransactionLocksList();
@@ -2188,7 +2163,7 @@ void ThreadCheckDarkSendPool()
                 LOCK(cs_vNodes);
                 BOOST_FOREACH(CNode* pnode, vNodes)
                 {
-                    if (pnode->nVersion >= darkSendPool.MIN_PEER_PROTO_VERSION) {
+                    if (pnode && pnode->nVersion >= darkSendPool.MIN_PEER_PROTO_VERSION) {
 
                         //keep track of who we've asked for the list
                         if(pnode->HasFulfilledRequest("mnsync")) continue;

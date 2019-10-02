@@ -93,7 +93,7 @@ public:
     std::string DarksendPoolDummyAddress() const { return strDarksendPoolDummyAddress; }
     int64_t StartMasternodePayments() const { return nStartMasternodePayments; }
     int64_t StakingRoundPeriod() const { return nStakingRoundPeriod; }
-    int64_t StakingInterval() const { return nStakingInterval; }
+    int64_t StakingInterval(int nHeight) const { return (nHeight > 256963) ? nStakingInterval : 28; }
     int64_t StakingMinAge() const { return nStakingMinAge; }
     CBaseChainParams::Network NetworkID() const { return networkID; }
 

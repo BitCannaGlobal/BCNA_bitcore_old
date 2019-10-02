@@ -546,9 +546,9 @@ bool Stake::IsBlockStaked(int nHeight) const
     bool result = false;
     auto it = mapHashedBlocks.find(nHeight);
     if (it != mapHashedBlocks.end()) {
-        if (nHashInterval < Params().StakingInterval()) {
+        if (nHashInterval < Params().StakingInterval(nHeight)) {
             auto that = const_cast<Stake*>(this);
-            that->nHashInterval = Params().StakingInterval();
+            that->nHashInterval = Params().StakingInterval(nHeight);
         }
         if (GetTime() - it->second < max(nHashInterval, (unsigned int)1)) {
             result = true;
@@ -792,7 +792,7 @@ bool Stake::CreateCoinStake(CWallet *wallet, const CKeyStore& keystore, unsigned
 
     // Calculate reward
     uint256 bnCoinDay = bnCentSecond / COIN / (24 * 60 * 60);
-    uint64_t nReward = GetProofOfStakeReward(bnCoinDay.GetCompact(), 0, pIndex0->nHeight);
+    uint64_t nReward = GetTotalRewards(chainActive.Height() + 1, 0);
     nCredit += nReward;
 
     int64_t nMinFee = 0;
@@ -857,7 +857,7 @@ bool Stake::CreateCoinStake(CWallet *wallet, const CKeyStore& keystore, unsigned
 
     int64_t blockValue = nCredit;
     int64_t masternodePayment = GetMasternodePayment(chainActive.Height() + 1, nReward);
-    int64_t governancePayment = GetGovernancePayment();
+    int64_t governancePayment = GetGovernancePayment(chainActive.Height() + 1);
 
     // Set output amount
     if (hasMasternodePayment) {
@@ -876,12 +876,12 @@ bool Stake::CreateCoinStake(CWallet *wallet, const CKeyStore& keystore, unsigned
     } else {
         if (txNew.vout.size() == 4) { // 2 stake outputs, stake was split, no masternode payment, plus governance payment
             txNew.vout[numout].nValue = governancePayment;
-            blockValue -= governancePayment;
+            blockValue -= masternodePayment + governancePayment;
             txNew.vout[1].nValue = (blockValue / 2 / CENT) * CENT;
             txNew.vout[2].nValue = blockValue - txNew.vout[1].nValue;
         } else if (txNew.vout.size() == 3) { // only 1 stake output, was not split, no masternode payment, plus governance payment
             txNew.vout[numout].nValue = governancePayment;
-            blockValue -= governancePayment;
+            blockValue -= masternodePayment + governancePayment;
             txNew.vout[1].nValue = blockValue;
         }
     }

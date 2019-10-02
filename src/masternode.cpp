@@ -38,15 +38,16 @@ void ProcessMasternodeConnections(){
     //LOCK(cs_vNodes);
 
     BOOST_FOREACH(CNode* pnode, vNodes)
-                {
-                    //if it's our masternode, let it be
-                    if(darkSendPool.submittedToMasternode == pnode->addr) continue;
+    {
+        if (!pnode) continue;
+        //if it's our masternode, let it be
+        if(darkSendPool.submittedToMasternode == pnode->addr) continue;
 
-                    if(pnode->fDarkSendMaster){
-                        LogPrintf("Closing masternode connection %s \n", pnode->addr.ToString().c_str());
-                        pnode->CloseSocketDisconnect();
-                    }
-                }
+        if(pnode->fDarkSendMaster){
+            LogPrintf("Closing masternode connection %s \n", pnode->addr.ToString().c_str());
+            pnode->CloseSocketDisconnect();
+        }
+    }
 }
 
 void ProcessMasternode(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, bool &isMasternodeCommand)
@@ -165,8 +166,13 @@ void ProcessMasternode(CNode* pfrom, const std::string& strCommand, CDataStream&
         tx.vin.push_back(vin);
         tx.vout.push_back(vout);
         //if(AcceptableInputs(mempool, state, tx)){
-        bool pfMissingInputs;
-        if(AcceptableInputs(mempool, state, tx, false, &pfMissingInputs)){
+        bool inputsAcceptable;
+        {
+            LOCK(cs_main);
+            bool pfMissingInputs;
+            inputsAcceptable = AcceptableInputs(mempool, state, CTransaction(tx), false, &pfMissingInputs);
+        }
+        if (inputsAcceptable) {
             if(fDebug) LogPrintf("dsee - Accepted masternode entry %i %i\n", count, current);
 
             if(GetInputAge(vin) < MASTERNODE_MIN_CONFIRMATIONS){
@@ -653,6 +659,12 @@ void CMasterNode::Check()
     }
 
     if(!unitTest){
+        LOCK(cs_main);
+        /*
+            cs_main is required for doing masternode.Check because something
+            is modifying the coins view without a mempool lock. It causes
+            segfaults from this code without the cs_main lock.
+        */
         CValidationState state;
         CTransaction tx = CTransaction();
         CTxOut vout = CTxOut((GetMNCollateral(chainActive.Height()) - 1) * COIN, darkSendPool.collateralPubKey);
@@ -864,8 +876,9 @@ void CMasternodePayments::Relay(CMasternodePaymentWinner& winner)
     vInv.push_back(inv);
     //LOCK(cs_vNodes);
     BOOST_FOREACH(CNode* pnode, vNodes){
-                    pnode->PushMessage("inv", vInv);
-                }
+        if (pnode)
+            pnode->PushMessage("inv", vInv);
+    }
 }
 
 void CMasternodePayments::Sync(CNode* node)

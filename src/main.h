@@ -209,6 +209,7 @@ bool LoadBlockIndex();
 void UnloadBlockIndex();
 /** See whether the protocol update is enforced for connected nodes */
 int ActiveProtocol();
+int GetMinPeerProtoVersion(int nHeight);
 /** Process protocol messages received from a given node */
 bool ProcessMessages(CNode* pfrom);
 /**
@@ -242,7 +243,7 @@ bool IsWitnessLocked(const CBlockIndex* pindexPrev);
 // ***TODO***
 double ConvertBitsToDouble(unsigned int nBits);
 CAmount GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCount = 0);
-CAmount GetGovernancePayment();
+CAmount GetGovernancePayment(int nHeight);
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock, bool fProofOfStake);
 uint256 GetProofOfStakeLimit(int nHeight);
 inline unsigned int GetTargetSpacing(int nHeight) { return 240; }
@@ -250,6 +251,7 @@ inline unsigned int GetTargetSpacing(int nHeight) { return 240; }
 bool ActivateBestChain(CValidationState& state, CBlock* pblock = NULL);
 CAmount GetProofOfWorkReward(int64_t nFees, int nHeight);
 CAmount GetProofOfStakeReward(int64_t nCoinAge, int64_t nFees, int nHeight);
+CAmount GetTotalRewards(int nHeight, int64_t nFees);
 
 /** Create a new block index entry for a given block hash */
 CBlockIndex* InsertBlockIndex(uint256 hash);

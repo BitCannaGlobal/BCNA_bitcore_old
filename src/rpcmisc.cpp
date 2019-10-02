@@ -108,6 +108,16 @@ Value getinfo(const Array& params, bool fHelp)
     return obj;
 }
 
+Value getmasternodecount(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw runtime_error(HelpExampleCli("getmasternodecount", "") + HelpExampleRpc("getmasternodecount", ""));
+
+    Object obj;
+    obj.push_back(Pair("count", int(vecMasternodes.size())));
+    return obj;
+}
+
 #ifdef ENABLE_WALLET
 class DescribeAddressVisitor : public boost::static_visitor<Object>
 {

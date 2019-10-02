@@ -428,7 +428,7 @@ Value gettxout(const Array& params, bool fHelp)
 
     CCoins coins;
     if (fMempool) {
-        LOCK(mempool.cs);
+        //LOCK(mempool.cs);
         CCoinsViewMemPool view(pcoinsTip, mempool);
         if (!view.GetCoins(hash, coins))
             return Value::null;

@@ -220,7 +220,7 @@ std::string BlockToString(CBlockIndex* pBlock)
     }
     TxContent += "</table>";
 
-    int64_t Generated = STATIC_POS_REWARD;
+    int64_t Generated = GetTotalRewards(pBlock->nHeight, 0);
     if (pBlock->nHeight == 0) {
         Generated = OutVolume;
     } else if(pBlock->nHeight <= Params().LAST_POW_BLOCK()) {

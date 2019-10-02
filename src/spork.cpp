@@ -189,7 +189,8 @@ void CSporkManager::Relay(CSporkMessage& msg)
     vInv.push_back(inv);
     LOCK(cs_vNodes);
     BOOST_FOREACH(CNode* pnode, vNodes){
-        pnode->PushMessage("inv", vInv);
+        if (pnode)
+            pnode->PushMessage("inv", vInv);
     }
 }
 

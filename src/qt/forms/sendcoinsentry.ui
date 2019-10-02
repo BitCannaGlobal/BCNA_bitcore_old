@@ -29,6 +29,8 @@
    <property name="frameShadow">
     <enum>QFrame::Sunken</enum>
    </property>
+   <layout class="QVBoxLayout" name="gridLayout">
+   <item>
    <layout class="QGridLayout" name="gridLayout">
     <item row="13" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -448,6 +450,8 @@
       </item>
      </layout>
     </item>
+   </layout>
+   </item>
    </layout>
   </widget>
   <widget class="QFrame" name="SendCoins_InsecurePaymentRequest">

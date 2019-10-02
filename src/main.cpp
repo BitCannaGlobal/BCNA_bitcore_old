@@ -104,6 +104,19 @@ const string strMessageMagic = "BitCanna Signed Message:\n";
 static unsigned int nMarutiryV1 = 10;
 static unsigned int nMarutiryV2 = 119;
 const int targetReadjustment_forkBlockHeight = 11550; //retargeting since 11550 block
+const int targetFork1 = 256963; // fork for new reward values
+
+const int nHeightBlockReward2019 = 259112; // 10.2019-10.2020
+const int nHeightBlockReward2020 = 1310312; // 10.2020-10.2021
+const int nHeightBlockReward2021 = 2361512; // 10.2021-10.2022
+const int nHeightBlockReward2022 = 3412712; // 10.2022-10.2023
+const int nHeightBlockReward2023 = 4463912; // 10.2023-10.2024
+const int nHeightBlockReward2024 = 5515112; // 10.2024-10.2025
+const int nHeightBlockReward2025 = 6566312; // 10.2025-10.2026
+const int nHeightBlockReward2026 = 7617512; // 10.2026-10.2027
+const int nHeightBlockReward2027 = 8668712; // 10.2027-10.2028
+const int nHeightBlockReward2028 = 9719912; // 10.2028-10.2029
+const int nHeightBlockReward2029 = 10771112; // 10.2029-...
 
 // Internal stuff
 namespace
@@ -223,10 +236,10 @@ unsigned int GetnMaturity(int nHeight)
 
 int GetMinPeerProtoVersion(int nHeight)
 {
-    if(nHeight!=0)
-        return(IsProtocolMaturityV2(nHeight)? NEW_PROTOCOL_VERSION : PROTOCOL_VERSION);
+    if (nHeight >= targetFork1)
+        return PROTOCOL_VERSION;
     else
-        return NEW_PROTOCOL_VERSION; //if we build blockchain from the scratch, ask for a new version first
+        return PROTOCOL_VERSION_BEFORE_FORK;
 }
 
 void RegisterValidationInterface(CValidationInterface* pwalletIn)
@@ -1664,20 +1677,174 @@ CAmount GetProofOfWorkReward(int64_t nFees, int nHeight)
 
 CAmount GetProofOfStakeReward(int64_t nCoinAge, int64_t nFees, int nHeight)
 {
-    CAmount nSubsidy = STATIC_POS_REWARD;
+    CAmount nSubsidy = 0.00000001 * COIN;
+    if(nHeight < nHeightBlockReward2019) {      // ...-10.2019
+        nSubsidy = 4.8 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2020) { // 10.2019-10.2020
+        nSubsidy = 2.6 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2021) { // 10.2020-10.2021
+        nSubsidy = 2.4 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2022) { // 10.2021-10.2022
+        nSubsidy = 2.1 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2023) { // 10.2022-10.2023
+        nSubsidy = 1.9 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2024) { // 10.2023-10.2024
+        nSubsidy = 1.6 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2025) { // 10.2024-10.2025
+        nSubsidy = 1.3 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2026) { // 10.2025-10.2026
+        nSubsidy = 1.1 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2027) { // 10.2026-10.2027
+        nSubsidy = 0.8 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2028) { // 10.2027-10.2028
+        nSubsidy = 0.5 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2029) { // 10.2028-10.2029
+        nSubsidy = 0.1 * COIN;
+    }
+    else {                                      // 10.2029-...
+        nSubsidy = 0.00000001 * COIN;
+    }
+
+    return nSubsidy + nFees;
+}
+
+CAmount GetTotalRewards(int nHeight, int64_t nFees)
+{
+    CAmount nSubsidy = 0.00000001 * COIN;
+    if(nHeight < nHeightBlockReward2019) {      // ...-10.2019
+        nSubsidy = STATIC_POS_REWARD;
+    }
+    else if(nHeight < nHeightBlockReward2020) { // 10.2019-10.2020
+        nSubsidy = 6.6 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2021) { // 10.2020-10.2021
+        nSubsidy = 6 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2022) { // 10.2021-10.2022
+        nSubsidy = 5.2 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2023) { // 10.2022-10.2023
+        nSubsidy = 4.7 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2024) { // 10.2023-10.2024
+        nSubsidy = 4 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2025) { // 10.2024-10.2025
+        nSubsidy = 3.3 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2026) { // 10.2025-10.2026
+        nSubsidy = 2.7 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2027) { // 10.2026-10.2027
+        nSubsidy = 2 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2028) { // 10.2027-10.2028
+        nSubsidy = 1.3 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2029) { // 10.2028-10.2029
+        nSubsidy = 0.30000001 * COIN;
+    }
+    else {                                      // 10.2029-...
+        nSubsidy = 0.00000003 * COIN;
+    }
+
     return nSubsidy + nFees;
 }
 
 CAmount GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCount)
 {
-    int64_t ret = STATIC_MN_REWARD;
-    return ret;
-}
+    CAmount nSubsidy = 0.00000001 * COIN;
+    if(nHeight < nHeightBlockReward2019) {      // ...-10.2019
+        nSubsidy = STATIC_MN_REWARD;
+    }
+    else if(nHeight < nHeightBlockReward2020) { // 10.2019-10.2020
+        nSubsidy = 3.3 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2021) { // 10.2020-10.2021
+        nSubsidy = 3.0 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2022) { // 10.2021-10.2022
+        nSubsidy = 2.6 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2023) { // 10.2022-10.2023
+        nSubsidy = 2.3 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2024) { // 10.2023-10.2024
+        nSubsidy = 2.0 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2025) { // 10.2024-10.2025
+        nSubsidy = 1.7 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2026) { // 10.2025-10.2026
+        nSubsidy = 1.3 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2027) { // 10.2026-10.2027
+        nSubsidy = 1.0 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2028) { // 10.2027-10.2028
+        nSubsidy = 0.7 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2029) { // 10.2028-10.2029
+        nSubsidy = 0.2 * COIN;
+    }
+    else {                                      // 10.2029-...
+        nSubsidy = 0.00000001 * COIN;
+    }
 
-CAmount GetGovernancePayment()
+    return nSubsidy;
+}           
+
+CAmount GetGovernancePayment(int nHeight)
 {
-    int64_t ret = STATIC_GOVERNANCE_REWARD;
-    return ret;
+    CAmount nSubsidy = 0.00000001 * COIN;
+    if(nHeight < nHeightBlockReward2019) {      // ...-10.2019
+        nSubsidy = STATIC_GOVERNANCE_REWARD;
+    }
+    else if(nHeight < nHeightBlockReward2020) { // 10.2019-10.2020
+        nSubsidy = 0.7 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2021) { // 10.2020-10.2021
+        nSubsidy = 0.6 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2022) { // 10.2021-10.2022
+        nSubsidy = 0.5 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2023) { // 10.2022-10.2023
+        nSubsidy = 0.5 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2024) { // 10.2023-10.2024
+        nSubsidy = 0.4 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2025) { // 10.2024-10.2025
+        nSubsidy = 0.3 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2026) { // 10.2025-10.2026
+        nSubsidy = 0.3 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2027) { // 10.2026-10.2027
+        nSubsidy = 0.2 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2028) { // 10.2027-10.2028
+        nSubsidy = 0.1 * COIN;
+    }
+    else if(nHeight < nHeightBlockReward2029) { // 10.2028-10.2029
+        nSubsidy = 0.00000001 * COIN;
+    }
+    else {                                      // 10.2029-...
+        nSubsidy = 0.00000001 * COIN;
+    }           
+
+    return nSubsidy;
 }
 
 bool IsInitialBlockDownload()
@@ -2181,6 +2348,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     int64_t nValueOut = 0;
     int64_t nValueIn = 0;
     int64_t nStakeReward = 0;
+    int64_t coinStakeAmount = 0;
     for (unsigned int i = 0; i < block.vtx.size(); i++) {
         const CTransaction& tx = block.vtx[i];
 
@@ -2209,7 +2377,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             nValueIn += view.GetValueIn(tx);
             if (tx.IsCoinStake()) {
-                nStakeReward = view.GetValueIn(tx) - tx.GetValueOut();
+                nStakeReward = tx.GetValueOut() - view.GetValueIn(tx);
+                coinStakeAmount += view.GetValueIn(tx);
             } else {
                 nFees += view.GetValueIn(tx) - tx.GetValueOut();
             }
@@ -2256,9 +2425,51 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if (!GetCoinAge(tx, tx.nTime, nCoinAge))
             return error("%s: %s unable to get coin age for coinstake", __func__, tx.GetHash().GetHex());
 
-        int64_t nCalculatedStakeReward = GetProofOfStakeReward(nCoinAge, nFees, pindex->nHeight);
-        if (nStakeReward > nCalculatedStakeReward)
+        int64_t nCalculatedStakeReward = GetTotalRewards(pindex->nHeight, nFees);
+        int64_t nCalculatedPOSReward = GetProofOfStakeReward(nCoinAge, 0, pindex->nHeight);
+        if (nStakeReward > nCalculatedStakeReward) {
+            LogPrintf("ConnectBlock() block.vtx[1].vout[0].nValue=%d \n", block.vtx[1].vout[0].nValue);
+            LogPrintf("ConnectBlock() block.vtx[1].vout[1].nValue=%d \n", block.vtx[1].vout[1].nValue);
+            LogPrintf("ConnectBlock() block.vtx[1].vout[2].nValue=%d \n", block.vtx[1].vout[2].nValue);
+            LogPrintf("ConnectBlock() block.vtx[1].vout[3].nValue=%d \n", block.vtx[1].vout[3].nValue);
+
             return error("%s: coinstake pays too much(actual=%d vs calculated=%d)", __func__, nStakeReward, nCalculatedStakeReward);
+        }
+
+        // check PoS reward amount
+        if (pindex->nHeight > targetFork1 && pindex->nHeight < nHeightBlockReward2029
+            && (coinStakeAmount != (block.vtx[1].vout[1].nValue + block.vtx[1].vout[2].nValue - nCalculatedPOSReward))
+            && (coinStakeAmount != (block.vtx[1].vout[1].nValue + block.vtx[1].vout[2].nValue - nCalculatedPOSReward))
+            && ((coinStakeAmount + 1) != (block.vtx[1].vout[1].nValue + block.vtx[1].vout[2].nValue - nCalculatedPOSReward)) 
+            && ((coinStakeAmount + 1) != (block.vtx[1].vout[1].nValue - nCalculatedPOSReward))
+        ) {
+            LogPrintf("ConnectBlock() coinStakeAmount=%d \n", coinStakeAmount);
+
+            LogPrintf("ConnectBlock() block.vtx[1].vout[0].nValue=%d \n", block.vtx[1].vout[0].nValue);
+            LogPrintf("ConnectBlock() block.vtx[1].vout[1].nValue=%d \n", block.vtx[1].vout[1].nValue);
+            LogPrintf("ConnectBlock() block.vtx[1].vout[2].nValue=%d \n", block.vtx[1].vout[2].nValue);
+            LogPrintf("ConnectBlock() block.vtx[1].vout[3].nValue=%d \n", block.vtx[1].vout[3].nValue);
+            return error(
+                "%s: PoS reward coinstake pays too much(coinStakeAmount=%d, block.vtx[1].vout[1].nValue=%d, block.vtx[1].vout[2].nValue=%d, nCalculatedPOSReward=%d)",
+                __func__, coinStakeAmount, block.vtx[1].vout[1].nValue, block.vtx[1].vout[2].nValue, nCalculatedPOSReward
+            );
+        }
+
+        // check governance reward
+        int voutSize = block.vtx[1].vout.size();
+        if (voutSize > 2) {
+            CBitcoinAddress gouv(GOVERNANCE_ADDRESS);
+            if (GetScriptForDestination(gouv.Get()) != block.vtx[1].vout[voutSize-1].scriptPubKey) {
+                return state.DoS(100, error("%s: Governance address is invalid", __func__));
+            }
+
+            if (block.vtx[1].vout[voutSize-1].nValue != GetGovernancePayment(pindex->nHeight)) {
+                return state.DoS(100, error(
+                    "%s: Governance reward value is invalid (nValue=%d, nHeight=%d, GetGovernancePayment=%d)",
+                    __func__, block.vtx[1].vout[voutSize-1].nValue, chainActive.Height(), GetGovernancePayment(pindex->nHeight)
+                ));
+            }
+        }
     }
 
     if (!control.Wait())
@@ -2862,7 +3073,7 @@ bool ActivateBestChain(CValidationState& state, CBlock* pblock)
                 }
 
                 BOOST_FOREACH (CNode* pnode, vNodesCopy)
-                    if (chainActive.Height() > (pnode->nStartingHeight != -1 ? pnode->nStartingHeight - 2000 : nBlockEstimate)){
+                    if (pnode && chainActive.Height() > (pnode->nStartingHeight != -1 ? pnode->nStartingHeight - 2000 : nBlockEstimate)){
                         // commented for now to speed up sync
                         //pnode->PushInventory(CInv(MSG_BLOCK, pblock->hashPrevBlock));
                         //pnode->PushInventory(CInv(MSG_BLOCK, pblock->GetHash()));
@@ -3222,18 +3433,6 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
         // Coinbase output should be empty if proof-of-stake block
         if (block.vtx[0].vout.size() != 1 || !block.vtx[0].vout[0].IsEmpty())
             return state.DoS(100, error("%s: coinbase output not empty for proof-of-stake block", __func__));
-
-        // check governance reward
-        int voutSize = block.vtx[1].vout.size();
-        if (voutSize > 2) {
-            CBitcoinAddress gouv(GOVERNANCE_ADDRESS);
-            if (GetScriptForDestination(gouv.Get()) != block.vtx[1].vout[voutSize-1].scriptPubKey)
-                return state.DoS(100, error("%s: Governance address is invalid", __func__));
-
-            if (block.vtx[1].vout[voutSize-1].nValue != GetGovernancePayment()) {
-                return state.DoS(100, error("%s: Governance reward value is invalid", __func__));
-            }
-        }
 
         // Second transaction must be coinstake, the rest must not be
         if (block.vtx.empty() || !block.vtx[1].IsCoinStake())
@@ -4594,11 +4793,11 @@ static bool ProcessMessage(CNode* pfrom, const string &strCommand, CDataStream& 
         CAddress addrFrom;
         uint64_t nNonce = 1;
         vRecv >> pfrom->nVersion >> pfrom->nServices >> nTime >> addrMe;
-        if (pfrom->nVersion < ActiveProtocol()) {
+        if (pfrom->nVersion < GetMinPeerProtoVersion(chainActive.Height())) {
             // disconnect from peers older than this proto version
             LogPrintf("peer=%d using obsolete version %i; disconnecting\n", pfrom->id, pfrom->nVersion);
             pfrom->PushMessage("reject", strCommand, REJECT_OBSOLETE,
-                strprintf("Version must be %d or greater", ActiveProtocol()));
+                strprintf("Version must be %d or greater (chainActive.Height()=%d)", GetMinPeerProtoVersion(chainActive.Height()), chainActive.Height()));
             pfrom->fDisconnect = true;
             return false;
         }
@@ -4749,7 +4948,7 @@ static bool ProcessMessage(CNode* pfrom, const string &strCommand, CDataStream& 
                     hashRand = Hash(BEGIN(hashRand), END(hashRand));
                     multimap<uint256, CNode*> mapMix;
                     BOOST_FOREACH (CNode* pnode, vNodesCopy) {
-                        if (pnode->nVersion < CADDR_TIME_VERSION)
+                        if (!pnode || pnode->nVersion < CADDR_TIME_VERSION)
                             continue;
                         unsigned int nPointer;
                         memcpy(&nPointer, &pnode, sizeof(nPointer));
@@ -5126,6 +5325,15 @@ static bool ProcessMessage(CNode* pfrom, const string &strCommand, CDataStream& 
                     if (lockMain) Misbehaving(pfrom->GetId(), nDoS);
                 }
             }
+
+            if (pfrom->nVersion < GetMinPeerProtoVersion(pindexBestHeader->nHeight)) {
+                // disconnect from peers older than this proto version
+                LogPrintf("peer=%d using obsolete version %i; disconnecting\n", pfrom->id, pfrom->nVersion);
+                pfrom->PushMessage("reject", strCommand, REJECT_OBSOLETE,
+                    strprintf("Version must be %d or greater (pindexBestHeader->nHeight=%d)", GetMinPeerProtoVersion(pindexBestHeader->nHeight), pindexBestHeader->nHeight));
+                pfrom->fDisconnect = true;
+                return false;
+            }
         }
     }
 
@@ -5259,7 +5467,8 @@ static bool ProcessMessage(CNode* pfrom, const string &strCommand, CDataStream& 
                     }
 
                     BOOST_FOREACH (CNode* pnode, vNodesCopy)
-                        alert.RelayTo(pnode);
+                        if (pnode)
+                            alert.RelayTo(pnode);
                 }
             } else {
                 // Small DoS penalty so peers that send us lots of

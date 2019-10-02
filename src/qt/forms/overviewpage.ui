@@ -37,7 +37,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout2" stretch="1,0,1">
+    <layout class="QHBoxLayout" name="horizontalLayout2" stretch="2,0,3">
      <property name="spacing">
       <number>15</number>
      </property>
@@ -129,13 +129,13 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>300</width>
+                <width>100</width>
                 <height>60</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>404</width>
+                <width>304</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -150,7 +150,7 @@
                 <rect>
                  <x>20</x>
                  <y>10</y>
-                 <width>361</width>
+                 <width>261</width>
                  <height>41</height>
                 </rect>
                </property>
@@ -257,7 +257,7 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>404</width>
+                <width>304</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -272,7 +272,7 @@
                 <rect>
                  <x>20</x>
                  <y>10</y>
-                 <width>361</width>
+                 <width>261</width>
                  <height>41</height>
                 </rect>
                </property>
@@ -370,7 +370,7 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>404</width>
+                <width>304</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -385,7 +385,7 @@
                 <rect>
                  <x>20</x>
                  <y>10</y>
-                 <width>361</width>
+                 <width>261</width>
                  <height>41</height>
                 </rect>
                </property>
@@ -474,7 +474,7 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>404</width>
+                <width>304</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -486,7 +486,7 @@
                 <rect>
                  <x>20</x>
                  <y>10</y>
-                 <width>361</width>
+                 <width>261</width>
                  <height>41</height>
                 </rect>
                </property>

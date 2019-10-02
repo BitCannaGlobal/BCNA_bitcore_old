@@ -366,7 +366,6 @@ CNode* FindNode(const std::string& addrName, bool withoutPort = false)
         vNodesCopy = vNodes;
     }
 
-    if (fDebug) LogPrintf("CNode::FindNode(): needle - %s\n", addrName);
     int pos = 0;
     std::string ip = "";
     BOOST_FOREACH (CNode* pnode, vNodesCopy) {
@@ -377,7 +376,6 @@ CNode* FindNode(const std::string& addrName, bool withoutPort = false)
                 ip.erase(ip.begin() + pos, ip.end());
             }
         }
-        if (fDebug) LogPrintf("CNode::FindNode(): pnode - %s\n", ip);
         if (ip == addrName)
             return (pnode);
     }
@@ -1304,7 +1302,6 @@ void ThreadOpenAddedConnections()
         vAddedNodes.push_back("136.144.213.6");
         vAddedNodes.push_back("136.144.182.192");
         vAddedNodes.push_back("136.144.182.191");
-
     }
 
     if (HaveNameProxy()) {
@@ -1773,7 +1770,7 @@ void RelayTransaction(const CTransaction& tx, const CDataStream& ss)
     BOOST_FOREACH (CNode* pnode, vNodesCopy) {
         if (!pnode->fRelayTxes)
             continue;
-        if (pnode->nVersion >= ActiveProtocol()) {
+        if (pnode->nVersion >= GetMinPeerProtoVersion(chainActive.Height())) {
             LOCK(pnode->cs_filter);
             if (pnode->pfilter==nullptr || pnode->pfilter->IsRelevantAndUpdate(tx)) {
                 pnode->PushInventory(inv);
@@ -1814,7 +1811,7 @@ void RelayInv(CInv& inv)
     }
 
     BOOST_FOREACH (CNode* pnode, vNodesCopy) {
-        if (pnode->nVersion >= ActiveProtocol())
+        if (pnode->nVersion >= GetMinPeerProtoVersion(chainActive.Height()))
             pnode->PushInventory(inv);
     }
 }

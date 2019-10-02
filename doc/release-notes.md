@@ -2,14 +2,14 @@
 
 BitCanna version *version* is now available from:
 
-  <https://github.com/216k155/bitcanna/releases>
+  <https://github.com/BitCannaGlobal/BCNA/releases>
 
 This is a new major version release, including various bug fixes and
 performance improvements, as well as updated translations.
 
 Please report bugs using the issue tracker at github:
 
-  <https://github.com/216k155/bitcanna/issues>
+  <https://github.com/BitCannaGlobal/BCNA/issues>
 
 Mandatory Update
 ==============
@@ -87,4 +87,4 @@ Thanks to everyone who directly contributed to this release:
 - amirabrams
 - presstab
 
-As well as everyone that helped translating on [Transifex](https://www.transifex.com/projects/p/216k155-translations/).
+As well as everyone that helped translating on [Transifex]().

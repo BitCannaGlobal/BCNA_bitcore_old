@@ -52,7 +52,8 @@ Value ping(const Array& params, bool fHelp)
     // Request that each node send a ping during next message processing pass
     LOCK(cs_vNodes);
     BOOST_FOREACH (CNode* pNode, vNodes) {
-        pNode->fPingQueued = true;
+        if (pNode)
+            pNode->fPingQueued = true;
     }
 
     return Value::null;
@@ -65,6 +66,7 @@ static void CopyNodeStats(std::vector<CNodeStats>& vstats)
     LOCK(cs_vNodes);
     vstats.reserve(vNodes.size());
     BOOST_FOREACH (CNode* pnode, vNodes) {
+        if (!pnode) continue;
         CNodeStats stats;
         pnode->copyStats(stats);
         vstats.push_back(stats);

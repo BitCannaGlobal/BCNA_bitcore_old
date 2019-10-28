@@ -19,7 +19,7 @@ BitCanna will provide a decentralized payment network for the legal cannabis ind
 |:-----------|:-----------|
 | Block Size | `4MB` |
 | Block Time | `30s` |
-| PoS Reward | `4.8 BCNA` |
+| PoS Reward | `2.6 BCNA` |
 | Masternode Requirement | `100000 BCNA` |
 | Masternode Reward | `6 BCNA ` |
 | Port | `12888` |

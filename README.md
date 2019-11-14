@@ -19,11 +19,24 @@ BitCanna will provide a decentralized payment network for the legal cannabis ind
 |:-----------|:-----------|
 | Block Size | `4MB` |
 | Block Time | `30s` |
-| PoS Reward | `4.8 BCNA` |
-| Masternode Requirement | `100000 BCNA` |
-| Masternode Reward | `6 BCNA ` |
 | Port | `12888` |
 | RPC Port | `9888` |
+
+#### Rewards
+
+| Date | Masternode reward | PoS reward | Governance |
+|:-----------|:-----------|:-----------|:-----------|
+| 27.09.2019 | 3,3 | 2,6 | 0,7 |
+| 27.09.2020 | 3,0 | 2,4 | 0,6 |
+| 27.09.2021 | 2,6 | 2,1 | 0,5 |
+| 27.09.2022 | 2,3 | 1,9 | 0,5 |
+| 27.09.2023 | 2,0 | 1,6 | 0,4 |
+| 27.09.2024 | 1,7 | 1,3 | 0,3 |
+| 27.09.2025 | 1,3 | 1,1 | 0,3 |
+| 27.09.2026 | 1,0 | 0,8 | 0,2 |
+| 27.09.2027 | 0,7 | 0,5 | 0,1 |
+| 27.09.2028 | 0,2 | 0,1 | 0,0 |
+| 27.09.2029 | 0,0 | 0,0 | 0,0 |
 
 
 Build BitCanna wallet

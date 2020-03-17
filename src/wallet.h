@@ -1155,6 +1155,7 @@ public:
     void RelayWalletTransaction(std::string strCommand = "tx");
 
     std::set<uint256> GetConflicts() const;
+    bool isConflicted() const;
 };
 
 

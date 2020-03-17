@@ -92,8 +92,6 @@ enum BindFlags {
 static const char* FEE_ESTIMATES_FILENAME = "fee_estimates.dat";
 CClientUIInterface uiInterface;
 
-string myIp = "";
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // Shutdown
@@ -503,6 +501,7 @@ std::string LicenseInfo()
            FormatParagraph(_("This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit <https://www.openssl.org/> and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.")) +
            "\n";
 }
+
 
 static void BlockNotifyCallback(const uint256& hashNewTip)
 {
@@ -1178,22 +1177,6 @@ bool AppInit2(boost::thread_group& threadGroup)
         RegisterValidationInterface(pzmqNotificationInterface);
     }
 #endif
-
-
-    CURL *curl;
-    CURLcode res;
-
-    curl = curl_easy_init();
-    if(curl) {
-      curl_easy_setopt(curl, CURLOPT_URL, "https://api.ipify.org");
-      curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-      curl_easy_setopt(curl, CURLOPT_WRITEDATA, &myIp);
-      res = curl_easy_perform(curl);
-      curl_easy_cleanup(curl);
-    }
-    else {
-        LogPrintf("ERROR! Curl init failed!\n");
-    }
 
     // ********************************************************* Step 7: load block chain
 

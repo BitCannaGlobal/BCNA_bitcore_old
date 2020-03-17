@@ -105,6 +105,7 @@ static unsigned int nMarutiryV1 = 10;
 static unsigned int nMarutiryV2 = 119;
 const int targetReadjustment_forkBlockHeight = 11550; //retargeting since 11550 block
 const int targetFork1 = 256963; // fork for new reward values
+const int targetFork2 = 710216; // for for new time drift
 
 const int nHeightBlockReward2019 = 259112; // 10.2019-10.2020
 const int nHeightBlockReward2020 = 1310312; // 10.2020-10.2021
@@ -236,10 +237,12 @@ unsigned int GetnMaturity(int nHeight)
 
 int GetMinPeerProtoVersion(int nHeight)
 {
-    if (nHeight >= targetFork1)
+    if (nHeight >= targetFork2)
         return PROTOCOL_VERSION;
+    else if (nHeight >= targetFork1)
+        return PROTOCOL_VERSION_BEFORE_FORK2;
     else
-        return PROTOCOL_VERSION_BEFORE_FORK;
+        return PROTOCOL_VERSION_BEFORE_FORK1;
 }
 
 void RegisterValidationInterface(CValidationInterface* pwalletIn)
@@ -3371,6 +3374,14 @@ bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, bool f
     return true;
 }
 
+inline int64_t CalculateBlockTimeLimit(int nHeight)
+{
+    if (nHeight >= targetFork2)
+        return 15; // 15s future drift for PoS
+    else
+        return 7200;
+}
+
 bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig)
 {
     const char * const s = block.IsProofOfStake() ? "pos" : "pow";
@@ -3383,8 +3394,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
         return state.DoS(100, error("%s: invalid (%s) block header", __func__, s),
             REJECT_INVALID, "bad-header", true);
 
-    // 3 minute future drift for PoS
-    auto const nBlockTimeLimit = GetAdjustedTime() + (block.IsProofOfStake() ? 180 : 7200);
+    auto const nBlockTimeLimit = GetAdjustedTime() + (block.IsProofOfStake() ? CalculateBlockTimeLimit(GetHeight()) : 7200);
 
     LogPrint("debug", "%s: block=%s (%s %d %d)\n", __func__, block.GetHash().GetHex(), s,
              block.GetBlockTime(), nBlockTimeLimit);

@@ -214,7 +214,12 @@ void CDBEnv::CheckpointLSN(const std::string& strFile)
     dbenv.txn_checkpoint(0, 0, 0);
     if (fMockDb)
         return;
-    dbenv.lsn_reset(strFile.c_str(), 0);
+    //dbenv.lsn_reset(strFile.c_str(), 0); // reference this: https://github.com/bitcoin/bitcoin/issues/7475
+}
+
+void CDBEnv::lsn_reset(const std::string& strFile)
+{
+    dbenv.lsn_reset(strFile.c_str(),0);
 }
 
 

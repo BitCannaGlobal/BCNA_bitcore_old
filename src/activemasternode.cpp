@@ -200,17 +200,6 @@ bool CActiveMasternode::Dseep(CTxIn vin, CService service, CKey keyMasternode, C
             continue;
         }
 
-        if(mn.enabled != 4 && mn.enabled != 3) {
-            mn.UpdateLastSeen();
-        }
-
-        if(fDebug) {
-            LogPrintf("mn.vin -- %s\n", mn.vin.ToString().c_str());
-            LogPrintf("vin -- %s\n", vin.ToString().c_str());
-            LogPrintf("mn.vin.prevout -- %s\n", uint256(mn.vin.prevout.hash).ToString().c_str());
-            LogPrintf("vin.prevout -- %s\n", uint256(vin.prevout.hash).ToString().c_str());
-        }
-
         if(mn.vin == vin) {
             found = true;
             mnVinToBroadcast = mn.vin;

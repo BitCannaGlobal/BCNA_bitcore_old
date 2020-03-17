@@ -612,7 +612,7 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet)
             wtx.nOrderPos = IncOrderPosNext();
 
             wtx.nTimeSmart = wtx.nTimeReceived;
-            if (wtxIn.hashBlock != 0) {
+            if (wtxIn.hashBlock != 0 && !wtx.isConflicted()) {
                 if (mapBlockIndex.count(wtxIn.hashBlock)) {
                     int64_t latestNow = wtx.nTimeReceived;
                     int64_t latestEntry = 0;
@@ -1138,6 +1138,11 @@ set<uint256> CWalletTx::GetConflicts() const
         result.erase(myHash);
     }
     return result;
+}
+
+bool CWalletTx::isConflicted() const
+{
+    return !GetConflicts().empty();
 }
 
 void CWallet::ResendWalletTransactions()

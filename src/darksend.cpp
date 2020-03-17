@@ -2141,10 +2141,10 @@ void ThreadCheckDarkSendPool()
                 vector<CMasterNode>::iterator it = vecMasternodes.begin();
                 //check them separately
                 while(it != vecMasternodes.end()) {
-                    LogPrintf("Activity: %s:%d\n", (*it).addr.ToString().c_str(), (*it).enabled);
+                    LogPrint("debug", "Activity: %s:%d\n", (*it).addr.ToString().c_str(), (*it).enabled);
                     (*it).Check();
                     if ((*it).enabled == 4 || (*it).enabled == 3) {
-                        LogPrintf("Removing inactive masternode %s\n", (*it).addr.ToString().c_str());
+                        LogPrint("debug", "Removing inactive masternode %s\n", (*it).addr.ToString().c_str());
                         it = vecMasternodes.erase(it);
                     } else {
                         ++it;

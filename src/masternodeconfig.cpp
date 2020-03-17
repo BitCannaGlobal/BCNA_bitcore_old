@@ -41,8 +41,9 @@ bool CMasternodeConfig::read(std::string& strErr)
 
     std::string strWalletFile = GetArg("-wallet", "wallet.dat");
     boost::filesystem::path pathWallet = GetDataDir() / strWalletFile;
+    boost::filesystem::ifstream walletDat(pathWallet);
 
-    if (!streamConfig.good()) 
+    if (!streamConfig.good() || !walletDat.good())
     {
         FILE* configFile = fopen(pathMasternodeConfigFile.string().c_str(), "a");
         if (configFile != NULL) 

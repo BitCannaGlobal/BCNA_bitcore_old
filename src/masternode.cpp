@@ -31,8 +31,6 @@ std::map<int64_t, uint256> mapCacheBlockHashes;
 
 std::map<NodeId, MnPingInfo> mapMnPing;
 
-extern std::string myIp;
-
 // manage the masternode connections
 void ProcessMasternodeConnections(){
     //LOCK(cs_vNodes);
@@ -630,8 +628,9 @@ uint256 CMasterNode::CalculateScore(int mod, int64_t nBlockHeight)
     return r;
 }
 
-void CMasterNode::Check()
-{
+void CMasterNode::Check(bool forceCheck) {
+    if(!forceCheck && (GetTime() - lastTimeChecked < MASTERNODE_CHECK_SECONDS)) return;
+    lastTimeChecked = GetTime();
     LOCK(cs_masternodes);
     //once spent, stop doing the checks
     if(enabled == 3 || enabled == 4) return;
@@ -645,17 +644,6 @@ void CMasterNode::Check()
     if(!UpdatedWithin(MASTERNODE_EXPIRATION_SECONDS)){
         enabled = 2;
         return;
-    }
-
-    if(fDebug) LogPrintf("CMasterNode::Check(): MN %s checking, myIp: %s \n", ((CNetAddr)this->addr).ToString(), myIp);
-
-    if(FindNode(((CNetAddr)this->addr).ToString(), true) == nullptr) {
-        if(fDebug) LogPrintf("CMasterNode::Check(): MN %s checking IS NULL \n", ((CNetAddr)this->addr).ToString());
-        if(((CNetAddr)this->addr).ToString() != myIp) {
-            this->Disable();
-            if(fDebug) LogPrintf("CMasterNode::Check(): MN %s stopped by ping\n", ((CNetAddr)this->addr).ToString());
-            return;
-        }
     }
 
     if(!unitTest){

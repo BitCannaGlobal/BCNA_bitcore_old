@@ -2442,7 +2442,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         // check PoS reward amount
         if (pindex->nHeight > targetFork1 && pindex->nHeight < nHeightBlockReward2029
             && (coinStakeAmount != (block.vtx[1].vout[1].nValue + block.vtx[1].vout[2].nValue - nCalculatedPOSReward))
-            && (coinStakeAmount != (block.vtx[1].vout[1].nValue + block.vtx[1].vout[2].nValue - nCalculatedPOSReward))
             && ((coinStakeAmount + 1) != (block.vtx[1].vout[1].nValue + block.vtx[1].vout[2].nValue - nCalculatedPOSReward)) 
             && ((coinStakeAmount + 1) != (block.vtx[1].vout[1].nValue - nCalculatedPOSReward))
         ) {
@@ -2452,10 +2451,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             LogPrintf("ConnectBlock() block.vtx[1].vout[1].nValue=%d \n", block.vtx[1].vout[1].nValue);
             LogPrintf("ConnectBlock() block.vtx[1].vout[2].nValue=%d \n", block.vtx[1].vout[2].nValue);
             LogPrintf("ConnectBlock() block.vtx[1].vout[3].nValue=%d \n", block.vtx[1].vout[3].nValue);
-            return error(
-                "%s: PoS reward coinstake pays too much(coinStakeAmount=%d, block.vtx[1].vout[1].nValue=%d, block.vtx[1].vout[2].nValue=%d, nCalculatedPOSReward=%d)",
-                __func__, coinStakeAmount, block.vtx[1].vout[1].nValue, block.vtx[1].vout[2].nValue, nCalculatedPOSReward
-            );
+            //return error(
+            //    "%s: PoS reward coinstake pays too much(coinStakeAmount=%d, block.vtx[1].vout[1].nValue=%d, block.vtx[1].vout[2].nValue=%d, nCalculatedPOSReward=%d)",
+            //    __func__, coinStakeAmount, block.vtx[1].vout[1].nValue, block.vtx[1].vout[2].nValue, nCalculatedPOSReward
+            //);
         }
 
         // check governance reward

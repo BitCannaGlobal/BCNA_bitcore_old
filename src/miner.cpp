@@ -136,7 +136,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
     pblock->vtx.push_back(txNew);
     if (fProofOfStake && !stake->CreateBlockStake(pwallet, pblock))
         return nullptr;
-    
+
     pblocktemplate->vTxFees.push_back(-1);   // updated at end
     pblocktemplate->vTxSigOps.push_back(-1); // updated at end
 
@@ -372,9 +372,9 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
         pblock->nNonce = 0;
         pblock->hashPrevBlock = pindexPrev->GetBlockHash();
         if (fProofOfStake) {
-#           if 0
+            #if 0
             if (!stake->CreateBlockStake(pwallet, pblock)) return nullptr;
-#           endif
+            #endif
         } else {
             auto &tx = pblock->vtx[0];
             CScript payeeScript;

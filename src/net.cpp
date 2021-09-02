@@ -353,7 +353,7 @@ CNode* FindNode(const CNetAddr& ip)
     }
 
     for (CNode* pnode : vNodesCopy)
-        if ((CNetAddr)pnode->addr == ip)
+        if (pnode && (CNetAddr)pnode->addr == ip)
             return (pnode);
     return NULL;
 }
@@ -369,6 +369,7 @@ CNode* FindNode(const std::string& addrName, bool withoutPort = false)
     int pos = 0;
     std::string ip = "";
     BOOST_FOREACH (CNode* pnode, vNodesCopy) {
+        if (!pnode) continue;
         ip = pnode->addrName;
         if (withoutPort) {
             pos = pnode->addrName.find(":");
@@ -389,18 +390,17 @@ CNode* FindNode(const CService& addr)
         LOCK(cs_vNodes);
         vNodesCopy = vNodes;
     }
-    if(vNodes.size() > 0) {
-        BOOST_FOREACH (CNode* pnode, vNodesCopy) {
-            if (Params().NetworkID() == CBaseChainParams::REGTEST) {
-                //if using regtest, just check the IP
-                if ((CNetAddr)pnode->addr == (CNetAddr)addr)
-                    return (pnode);
-            } else {
-                if (pnode->addr == addr)
-                    return (pnode);
-            }
+    BOOST_FOREACH (CNode* pnode, vNodesCopy) {
+        if (Params().NetworkID() == CBaseChainParams::REGTEST) {
+            //if using regtest, just check the IP
+            if (pnode && (CNetAddr)pnode->addr == (CNetAddr)addr)
+                return (pnode);
+        } else {
+            if (pnode && pnode->addr == addr)
+                return (pnode);
         }
     }
+
     return NULL;
 }
 
@@ -442,6 +442,7 @@ CNode* ConnectNode(CAddress addrConnect, const char* pszDest, bool darkSendMaste
 
         // Add node
         CNode* pnode = new CNode(hSocket, addrConnect, pszDest ? pszDest : "", false);
+        if (!pnode) return NULL;
         pnode->AddRef();
 
         {
@@ -734,8 +735,11 @@ void ThreadSocketHandler()
             }
             // Disconnect unused nodes
             BOOST_FOREACH (CNode* pnode, vNodesCopy) {
-                if (pnode->fDisconnect ||
-                    (pnode->GetRefCount() <= 0 && pnode->vRecvMsg.empty() && pnode->nSendSize == 0 && pnode->ssSend.empty())) {
+                assert(pnode != NULL);
+                assert(pnode->GetId() >= 0);
+
+                if (pnode && (pnode->fDisconnect ||
+                    (pnode->GetRefCount() <= 0 && pnode->vRecvMsg.empty() && pnode->nSendSize == 0 && pnode->ssSend.empty()))) {
 
                     LogPrintf("ThreadSocketHandler -- removing node: peer=%d addr=%s nRefCount=%d fNetworkNode=%d fInbound=%d fMasternode=%d\n",
                               pnode->id, pnode->addr.ToString(), pnode->GetRefCount(), pnode->fNetworkNode, pnode->fInbound, pnode->fMasternode);
@@ -764,7 +768,7 @@ void ThreadSocketHandler()
             list<CNode*> vNodesDisconnectedCopy = vNodesDisconnected;
             BOOST_FOREACH (CNode* pnode, vNodesDisconnectedCopy) {
                 // wait until threads are done using it
-                if (pnode->GetRefCount() <= 0) {
+                if (pnode && pnode->GetRefCount() <= 0) {
                     bool fDelete = false;
                     {
                         TRY_LOCK(pnode->cs_vSend, lockSend);
@@ -784,8 +788,13 @@ void ThreadSocketHandler()
                 }
             }
         }
-        if (vNodes.size() != nPrevNodeCount) {
-            nPrevNodeCount = vNodes.size();
+        size_t vNodesSize;
+        {
+            LOCK(cs_vNodes);
+            vNodesSize = vNodes.size();
+        }
+        if (vNodesSize != nPrevNodeCount) {
+            nPrevNodeCount = vNodesSize;
             uiInterface.NotifyNumConnectionsChanged(nPrevNodeCount);
         }
 
@@ -820,7 +829,7 @@ void ThreadSocketHandler()
                 vNodesCopy = vNodes;
             }
             BOOST_FOREACH (CNode* pnode, vNodesCopy) {
-                if (pnode->hSocket == INVALID_SOCKET)
+                if (!pnode || pnode->hSocket == INVALID_SOCKET)
                     continue;
                 FD_SET(pnode->hSocket, &fdsetError);
                 hSocketMax = max(hSocketMax, pnode->hSocket);
@@ -896,7 +905,7 @@ void ThreadSocketHandler()
                         vNodesCopy = vNodes;
                     }
                     BOOST_FOREACH (CNode* pnode, vNodesCopy)
-                        if (pnode->fInbound)
+                        if (pnode && pnode->fInbound)
                             nInbound++;
                 }
 
@@ -915,6 +924,7 @@ void ThreadSocketHandler()
                     CloseSocket(hSocket);
                 } else {
                     CNode* pnode = new CNode(hSocket, addr, "", true);
+                    if(!pnode) return;
                     pnode->AddRef();
                     pnode->fWhitelisted = whitelisted;
 
@@ -935,14 +945,16 @@ void ThreadSocketHandler()
             vNodesCopy = vNodes;
         }
         BOOST_FOREACH (CNode* pnode, vNodesCopy)
-            pnode->AddRef();
+            if (pnode)
+                pnode->AddRef();
+
         BOOST_FOREACH (CNode* pnode, vNodesCopy) {
             boost::this_thread::interruption_point();
 
             //
             // Receive
             //
-            if (pnode->hSocket == INVALID_SOCKET)
+            if (!pnode || pnode->hSocket == INVALID_SOCKET)
                 continue;
             if (FD_ISSET(pnode->hSocket, &fdsetRecv) || FD_ISSET(pnode->hSocket, &fdsetError)) {
                 TRY_LOCK(pnode->cs_vRecvMsg, lockRecv);
@@ -966,8 +978,8 @@ void ThreadSocketHandler()
                             // error
                             int nErr = WSAGetLastError();
                             if (nErr != WSAEWOULDBLOCK && nErr != WSAEMSGSIZE && nErr != WSAEINTR && nErr != WSAEINPROGRESS) {
-                                if (!pnode->fDisconnect)
-                                    LogPrintf("socket recv error %s\n", NetworkErrorString(nErr));
+                                //if (!pnode->fDisconnect)
+                                //    LogPrintf("socket recv error %s\n", NetworkErrorString(nErr));
                                 pnode->CloseSocketDisconnect();
                             }
                         }
@@ -978,7 +990,7 @@ void ThreadSocketHandler()
             //
             // Send
             //
-            if (pnode->hSocket == INVALID_SOCKET)
+            if (!pnode || pnode->hSocket == INVALID_SOCKET)
                 continue;
             if (FD_ISSET(pnode->hSocket, &fdsetSend)) {
                 TRY_LOCK(pnode->cs_vSend, lockSend);
@@ -1007,10 +1019,13 @@ void ThreadSocketHandler()
             }
         }
         {
-            //LOCK(cs_vNodes);
+            LOCK(cs_vNodes);
             BOOST_FOREACH (CNode* pnode, vNodesCopy)
-                pnode->Release();
+                if(pnode)
+                    pnode->Release();
         }
+
+        MilliSleep(100);
     }
 }
 
@@ -1247,7 +1262,7 @@ void ThreadOpenConnections()
             vNodesCopy = vNodes;
         }
         BOOST_FOREACH (CNode* pnode, vNodesCopy) {
-            if (!pnode->fInbound) {
+            if (pnode && !pnode->fInbound) {
                 setConnected.insert(pnode->addr.GetGroup());
                 nOutbound++;
             }
@@ -1351,7 +1366,8 @@ void ThreadOpenAddedConnections()
                 vNodesCopy = vNodes;
             }
         
-            BOOST_FOREACH(CNode* pnode, vNodesCopy)
+            BOOST_FOREACH(CNode* pnode, vNodesCopy) {
+                if(!pnode) continue;
                 for (list<vector<CService> >::iterator it = lservAddressesToAdd.begin(); it != lservAddressesToAdd.end(); it++)
                     BOOST_FOREACH (CService& addrNode, *(it))
                         if (pnode->addr == addrNode) {
@@ -1359,6 +1375,7 @@ void ThreadOpenAddedConnections()
                             it--;
                             break;
                         }
+            }
         }
         BOOST_FOREACH (vector<CService>& vserv, lservAddressesToAdd) {
             CSemaphoreGrant grant(*semOutbound);
@@ -1413,7 +1430,8 @@ void ThreadMessageHandler()
         }
 
         BOOST_FOREACH (CNode* pnode, vNodesCopy) {
-            pnode->AddRef();
+            if(pnode)
+                pnode->AddRef();
         }
 
         // Poll the connected nodes for messages
@@ -1424,7 +1442,7 @@ void ThreadMessageHandler()
         bool fSleep = true;
 
         BOOST_FOREACH (CNode* pnode, vNodesCopy) {
-            if (pnode->fDisconnect)
+            if (!pnode || pnode->fDisconnect)
                 continue;
 
             // Receive messages
@@ -1456,9 +1474,10 @@ void ThreadMessageHandler()
 
 
         {
-            //LOCK(cs_vNodes);
+            LOCK(cs_vNodes);
             BOOST_FOREACH (CNode* pnode, vNodesCopy)
-                pnode->Release();
+                if(pnode)
+                    pnode->Release();
         }
 
         if (fSleep)
@@ -1768,9 +1787,9 @@ void RelayTransaction(const CTransaction& tx, const CDataStream& ss)
     }
     unsigned nRelayed = 0;
     BOOST_FOREACH (CNode* pnode, vNodesCopy) {
-        if (!pnode->fRelayTxes)
+        if (!pnode || !pnode->fRelayTxes)
             continue;
-        if (pnode->nVersion >= GetMinPeerProtoVersion(chainActive.Height())) {
+        if (pnode && pnode->nVersion >= GetMinPeerProtoVersion(chainActive.Height())) {
             LOCK(pnode->cs_filter);
             if (pnode->pfilter==nullptr || pnode->pfilter->IsRelevantAndUpdate(tx)) {
                 pnode->PushInventory(inv);
@@ -1795,7 +1814,7 @@ void RelayTransactionLockReq(const CTransaction& tx, bool relayToAll)
     }
 
     BOOST_FOREACH (CNode* pnode, vNodesCopy) {
-        if (!relayToAll && !pnode->fRelayTxes)
+        if (!pnode || (!relayToAll && !pnode->fRelayTxes))
             continue;
 
         pnode->PushMessage("ix", tx);
@@ -1811,7 +1830,7 @@ void RelayInv(CInv& inv)
     }
 
     BOOST_FOREACH (CNode* pnode, vNodesCopy) {
-        if (pnode->nVersion >= GetMinPeerProtoVersion(chainActive.Height()))
+        if (pnode && pnode->nVersion >= GetMinPeerProtoVersion(chainActive.Height()))
             pnode->PushInventory(inv);
     }
 }
@@ -1825,7 +1844,8 @@ void RelayDarkSendFinalTransaction(const int sessionID, const CTransaction& txNe
     }
 
     BOOST_FOREACH(CNode* pnode, vNodesCopy) {
-        pnode->PushMessage("dsf", sessionID, txNew);
+        if(pnode)
+            pnode->PushMessage("dsf", sessionID, txNew);
     }
 }
 
@@ -1838,7 +1858,7 @@ void RelayDarkSendIn(const std::vector<CTxIn>& in, const int64_t& nAmount, const
     }
 
     BOOST_FOREACH(CNode* pnode, vNodesCopy) {
-        if((CNetAddr)darkSendPool.submittedToMasternode != (CNetAddr)pnode->addr) continue;
+        if(!pnode || (CNetAddr)darkSendPool.submittedToMasternode != (CNetAddr)pnode->addr) continue;
         LogPrintf("RelayDarkSendIn - found master, relaying message - %s \n", pnode->addr.ToString().c_str());
         pnode->PushMessage("dsi", in, nAmount, txCollateral, out);
     }
@@ -1853,7 +1873,8 @@ void RelayDarkSendStatus(const int sessionID, const int newState, const int newE
     }
 
     BOOST_FOREACH(CNode* pnode, vNodesCopy) {
-        pnode->PushMessage("dssu", sessionID, newState, newEntriesCount, newAccepted, error);
+        if(pnode)
+            pnode->PushMessage("dssu", sessionID, newState, newEntriesCount, newAccepted, error);
     }
 }
 
@@ -1866,7 +1887,7 @@ void RelayDarkSendElectionEntry(const CTxIn &vin, const CService addr, const std
     }
 
     BOOST_FOREACH(CNode* pnode, vNodesCopy) {
-        if(!pnode->fRelayTxes) continue;
+        if(!pnode || !pnode->fRelayTxes) continue;
         pnode->PushMessage("dsee", vin, addr, vchSig, nNow, pubkey, pubkey2, count, current, lastUpdated, protocolVersion);
     }
 }
@@ -1880,7 +1901,8 @@ void SendDarkSendElectionEntry(const CTxIn &vin, const CService addr, const std:
     }
 
     BOOST_FOREACH(CNode* pnode, vNodesCopy) {
-        pnode->PushMessage("dsee", vin, addr, vchSig, nNow, pubkey, pubkey2, count, current, lastUpdated, protocolVersion);
+        if(pnode)
+            pnode->PushMessage("dsee", vin, addr, vchSig, nNow, pubkey, pubkey2, count, current, lastUpdated, protocolVersion);
     }
 }
 
@@ -1893,7 +1915,7 @@ void RelayDarkSendElectionEntryPing(const CTxIn &vin, const std::vector<unsigned
     }
 
     BOOST_FOREACH(CNode* pnode, vNodesCopy) {
-        if(!pnode->fRelayTxes) continue;
+        if(!pnode || !pnode->fRelayTxes) continue;
         pnode->PushMessage("dseep", vin, vchSig, nNow, stop);
     }
 }
@@ -1907,7 +1929,8 @@ void SendDarkSendElectionEntryPing(const CTxIn &vin, const std::vector<unsigned 
     }
 
     BOOST_FOREACH(CNode* pnode, vNodesCopy) {
-        pnode->PushMessage("dseep", vin, vchSig, nNow, stop);
+        if(pnode)
+            pnode->PushMessage("dseep", vin, vchSig, nNow, stop);
     }
 }
 
@@ -1920,7 +1943,8 @@ void RelayDarkSendCompletedTransaction(const int sessionID, const bool error, co
     }
 
     BOOST_FOREACH(CNode* pnode, vNodesCopy) {
-        pnode->PushMessage("dsc", sessionID, error, errorMessage);
+        if(pnode)
+            pnode->PushMessage("dsc", sessionID, error, errorMessage);
     }
 }
 

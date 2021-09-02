@@ -238,37 +238,33 @@ void ProcessMasternode(CNode* pfrom, const std::string& strCommand, CDataStream&
 
         // see if we have this masternode
         LOCK(cs_masternodes);
-        BOOST_FOREACH(CMasterNode& mn, vecMasternodes) {
-                        if(mn.vin.prevout == vin.prevout) {
-                            // LogPrintf("dseep - Found corresponding mn for vin: %s\n", vin.ToString().c_str());
-                            // take this only if it's newer
-                            if(mn.lastDseep < sigTime){
-                                std::string strMessage = mn.addr.ToString() + boost::lexical_cast<std::string>(sigTime) + boost::lexical_cast<std::string>(stop);
+        for (CMasterNode& mn : vecMasternodes) {
+            if (mn.vin.prevout == vin.prevout) {
+                // take this only if it's newer
+                if (mn.lastDseep < sigTime) {
+                    std::string strMessage = mn.addr.ToString() + boost::lexical_cast<std::string>(sigTime) + boost::lexical_cast<std::string>(stop);
 
-                                std::string errorMessage = "";
-                                if(!darkSendSigner.VerifyMessage(mn.pubkey2, vchSig, strMessage, errorMessage)){
-                                    LogPrintf("dseep - Got bad masternode address signature %s \n", vin.ToString().c_str());
-                                    //Misbehaving(pfrom->GetId(), 100);
-                                    return;
-                                }
-
-                                mn.lastDseep = sigTime;
-
-                                if(stop) {
-                                    mn.Disable();
-                                    mn.Check();
-                                    RelayDarkSendElectionEntryPing(vin, vchSig, sigTime, stop);
-                                    return;
-                                }
-
-                                if(!mn.UpdatedWithin(MASTERNODE_MIN_DSEEP_SECONDS)){
-                                    mn.UpdateLastSeen();
-                                    RelayDarkSendElectionEntryPing(vin, vchSig, sigTime, stop);
-                                }
-                            }
-                            return;
-                        }
+                    std::string errorMessage = "";
+                    if (!darkSendSigner.VerifyMessage(mn.pubkey2, vchSig, strMessage, errorMessage)) {
+                        LogPrintf("dseep - Got bad masternode address signature %s \n", vin.ToString().c_str());
+                        //Misbehaving(pfrom->GetId(), 100);
+                        return;
                     }
+
+                    mn.lastDseep = sigTime;
+
+                    if (!mn.UpdatedWithin(MASTERNODE_MIN_DSEEP_SECONDS)) {
+                        mn.UpdateLastSeen();
+                        if (stop) {
+                            mn.Disable();
+                            mn.Check();
+                        }
+                        RelayDarkSendElectionEntryPing(vin, vchSig, sigTime, stop);
+                    }
+                }
+                return;
+            }
+        }
 
         if(fDebug) LogPrintf("dseep - Couldn't find masternode entry %s\n", vin.ToString().c_str());
 
@@ -621,7 +617,7 @@ uint256 CMasterNode::CalculateScore(int mod, int64_t nBlockHeight)
     if(!GetBlockHash(hash, nBlockHeight)) return 0;
 
     uint256 hash2 = Hash(BEGIN(hash), END(hash));
-    uint256 hash3 = Hash(BEGIN(hash), END(aux));
+    uint256 hash3 = Hash(BEGIN(hash), END(hash), BEGIN(aux), END(aux));
 
     uint256 r = (hash3 > hash2 ? hash3 - hash2 : hash2 - hash3);
 
@@ -631,9 +627,8 @@ uint256 CMasterNode::CalculateScore(int mod, int64_t nBlockHeight)
 void CMasterNode::Check(bool forceCheck) {
     if(!forceCheck && (GetTime() - lastTimeChecked < MASTERNODE_CHECK_SECONDS)) return;
     lastTimeChecked = GetTime();
-    LOCK(cs_masternodes);
     //once spent, stop doing the checks
-    if(enabled == 3 || enabled == 4) return;
+    if(enabled == 3) return;
 
 
     if(!UpdatedWithin(MASTERNODE_REMOVAL_SECONDS)){
@@ -646,26 +641,26 @@ void CMasterNode::Check(bool forceCheck) {
         return;
     }
 
-    if(!unitTest){
-        LOCK(cs_main);
-        /*
-            cs_main is required for doing masternode.Check because something
-            is modifying the coins view without a mempool lock. It causes
-            segfaults from this code without the cs_main lock.
-        */
+    if(!unitTest) {
         CValidationState state;
-        CTransaction tx = CTransaction();
+        CMutableTransaction tx = CMutableTransaction();
         CTxOut vout = CTxOut((GetMNCollateral(chainActive.Height()) - 1) * COIN, darkSendPool.collateralPubKey);
         tx.vin.push_back(vin);
         tx.vout.push_back(vout);
-
         bool pfMissingInputs;
-        if (!AcceptableInputs(mempool, state, tx, false, &pfMissingInputs)) {
-            enabled = 3;
-            return;
+        /*
+        cs_main is required for doing masternode.Check because something
+        is modifying the coins view without a mempool lock. It causes
+        segfaults from this code without the cs_main lock.
+        */
+        {
+            LOCK(cs_main);
+            if (!AcceptableInputs(mempool, state, CTransaction(tx), false, &pfMissingInputs)) {
+                enabled = 3;
+                return;
+                }
         }
     }
-
     this->UpdateLastSeen();
 
     enabled = 1; // OK

@@ -151,15 +151,12 @@ public:
     }
 
     bool IsLocked() const
-    {
-        if (!IsCrypted())
-            return false;
-        bool result;
         {
-            LOCK(cs_KeyStore);
-            result = vMasterKey.empty();
+        if (!IsCrypted()) {
+            return false;
         }
-        return result;
+        LOCK(cs_KeyStore);
+        return vMasterKey.empty();
     }
 
     bool Lock();

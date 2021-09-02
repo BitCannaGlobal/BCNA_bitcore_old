@@ -124,9 +124,9 @@ Value masternode(const Array& params, bool fHelp)
 
     if (fHelp  ||
         (strCommand != "start" && strCommand != "start-index" && strCommand != "start-many" && strCommand != "stop" && strCommand != "stop-index" && strCommand != "stop-many" && strCommand != "list" && strCommand != "list-conf" && strCommand != "count"  && strCommand != "enforce"
-            && strCommand != "debug" && strCommand != "current" && strCommand != "winners" && strCommand != "genkey" && strCommand != "connect" && strCommand != "outputs"))
+            && strCommand != "debug" && strCommand != "current" && strCommand != "winners" && strCommand != "genkey" && strCommand != "status" && strCommand != "connect" && strCommand != "outputs"))
         throw runtime_error(
-            "masternode <start|start-index|start-many|stop|stop-index|stop-many|list|list-conf|count|debug|current|winners|genkey|enforce|outputs> [passphrase]\n");
+            "masternode <start|start-index|start-many|stop|stop-index|stop-many|list|list-conf|count|debug|current|winners|genkey|status|enforce|outputs> [passphrase]\n");
 
     if (strCommand == "stop")
     {
@@ -503,6 +503,39 @@ Value masternode(const Array& params, bool fHelp)
         secret.MakeNewKey(false);
 
         return CBitcoinSecret(secret).ToString();
+    }
+
+    if (strCommand == "status")
+    {
+        const int index = GetMasternodeByVin(activeMasternode.vin);
+        Object obj;
+        if(!fMasterNode || index == -1) {
+            obj.push_back(Pair("errorMessage", "This is not a masternode"));
+            return obj;
+        }
+
+        obj.push_back(Pair("vin", activeMasternode.vin.ToString().c_str()));
+        obj.push_back(Pair("service", activeMasternode.service.ToString().c_str()));
+        CScript pubkey;
+        {
+            LOCK(cs_masternodes);
+            pubkey = GetScriptForDestination(vecMasternodes[index].pubkey.GetID());
+        }
+        CTxDestination address1;
+        ExtractDestination(pubkey, address1);
+        CBitcoinAddress address2(address1);
+
+        obj.push_back(Pair("payee", address2.ToString().c_str()));
+        std::string strStatus = "Status error";
+        if(activeMasternode.status == MASTERNODE_REMOTELY_ENABLED) strStatus = "masternode started remotely";
+        if(activeMasternode.status == MASTERNODE_INPUT_TOO_NEW) strStatus = "masternode input must have at least 15 confirmations";
+        if(activeMasternode.status == MASTERNODE_STOPPED) strStatus = "masternode is stopped";
+        if(activeMasternode.status == MASTERNODE_IS_CAPABLE) strStatus = "successfully started masternode";
+        if(activeMasternode.status == MASTERNODE_NOT_CAPABLE) strStatus = "not capable masternode: " + activeMasternode.notCapableReason;
+        if(activeMasternode.status == MASTERNODE_SYNC_IN_PROCESS) strStatus = "sync in process. Must wait until client is synced to start.";
+
+        obj.push_back (Pair("status", strStatus.c_str()));
+        return obj;
     }
 
     if (strCommand == "winners")

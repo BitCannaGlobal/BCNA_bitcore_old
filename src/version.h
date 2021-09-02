@@ -11,7 +11,8 @@
  * network protocol versioning
  */
 
-static const int PROTOCOL_VERSION = 69302;
+static const int PROTOCOL_VERSION = 69303;
+static const int PROTOCOL_VERSION_BEFORE_FORK3 = 69302;
 static const int PROTOCOL_VERSION_BEFORE_FORK2 = 69301;
 static const int PROTOCOL_VERSION_BEFORE_FORK1 = 69300;
 
@@ -26,7 +27,7 @@ static const int MIN_PEER_PROTO_VERSION_BEFORE_ENFORCEMENT = 69100;
 static const int MIN_PEER_PROTO_VERSION_AFTER_ENFORCEMENT = 69100;
 
 static const int MIN_INSTANTX_PROTO_VERSION = 69100;
-static const int MIN_MN_PROTO_VERSION = 69100;
+static const int MIN_MN_PROTO_VERSION = 69303;
 
 //! nTime field added to CAddress, starting with this version;
 //! if possible, avoid requesting addresses nodes older than this

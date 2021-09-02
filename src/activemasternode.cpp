@@ -101,7 +101,7 @@ void CActiveMasternode::ManageStatus() {
 
     //send to all peers
     if (!Dseep(errorMessage)) {
-    	LogPrintf("CActiveMasternode::ManageStatus() - Error on Ping: %s", errorMessage.c_str());
+        LogPrintf("CActiveMasternode::ManageStatus() - Error on Ping: %s\n", errorMessage.c_str());
     }
 }
 
@@ -141,13 +141,8 @@ bool CActiveMasternode::StopMasterNode(std::string& errorMessage) {
 
 // Send stop dseep to network for any masternode
 bool CActiveMasternode::StopMasterNode(CTxIn vin, CService service, CKey keyMasternode, CPubKey pubKeyMasternode, std::string& errorMessage) {
-    if(status == MASTERNODE_STOPPED || status == MASTERNODE_NOT_PROCESSED) {
-        errorMessage = "masternode is not in a running status";
-        LogPrintf("CActiveMasternode::Dseep() - Error: %s\n", errorMessage.c_str());
-        return false;
-    }
     pwalletMain->UnlockCoin(vin.prevout);
-	return Dseep(vin, service, keyMasternode, pubKeyMasternode, errorMessage, true);
+    return Dseep(vin, service, keyMasternode, pubKeyMasternode, errorMessage, true);
 }
 
 bool CActiveMasternode::Dseep(std::string& errorMessage) {
@@ -188,24 +183,12 @@ bool CActiveMasternode::Dseep(CTxIn vin, CService service, CKey keyMasternode, C
         return false;
     }
 
-    CTxIn mnVinToBroadcast;
-
     // Update Last Seen timestamp in masternode list
     bool found = false;
-    BOOST_FOREACH(CMasterNode& mn, vecMasternodes) {
-        uint256 hash(uint256(mn.vin.prevout.hash).ToString().c_str());
-
-        if (!pwalletMain->mapWallet.count(hash)) {
-            LogPrintf("CActiveMasternode::Dseep() - Error: Invalid or non-wallet transaction id\n");
-            continue;
-        }
-
-        if(mn.vin == vin) {
+    for (CMasterNode& mn : vecMasternodes) {
+        if (mn.vin == vin) {
             found = true;
-            mnVinToBroadcast = mn.vin;
-            if(stop) {
-                mn.Disable();
-            }
+            mn.UpdateLastSeen();
         }
     }
 
@@ -220,7 +203,7 @@ bool CActiveMasternode::Dseep(CTxIn vin, CService service, CKey keyMasternode, C
 
     //send to all peers
     LogPrintf("CActiveMasternode::Dseep() - SendDarkSendElectionEntryPing vin = %s\n", vin.ToString().c_str());
-    SendDarkSendElectionEntryPing(mnVinToBroadcast, vchMasterNodeSignature, masterNodeSignatureTime, stop);
+    SendDarkSendElectionEntryPing(vin, vchMasterNodeSignature, masterNodeSignatureTime, stop);
 
     return true;
 }
@@ -300,19 +283,11 @@ bool CActiveMasternode::Register(CTxIn vin, CService service, CKey keyCollateral
         if(mn.vin == vin)
             found = true;
 
-    if(!found) {
+    if (!found) {
         LogPrintf("CActiveMasternode::Register() - Adding to masternode list service: %s - vin: %s\n", service.ToString().c_str(), vin.ToString().c_str());
         CMasterNode mn(service, vin, pubKeyCollateralAddress, vchMasterNodeSignature, masterNodeSignatureTime, pubKeyMasternode, PROTOCOL_VERSION);
         mn.UpdateLastSeen(masterNodeSignatureTime);
-        pwalletMain->LockCoin(vin.prevout);
         vecMasternodes.push_back(mn);
-        BOOST_FOREACH(CMasternodeConfig::CMasternodeEntry& mne, masternodeConfig.getEntries()) {
-            if(mne.getIp() == service.ToString()) {
-                LogPrintf("CActiveMasternode::Register() - %s - vin: %s\n", mne.getIp(), vin.ToString());
-                mne.setVin(vin);
-                break;
-            }
-        }
     }
 
     //send to all peers
@@ -337,7 +312,17 @@ bool CActiveMasternode::GetMasterNodeVin(CTxIn& vin, CPubKey& pubkey, CKey& secr
 	if(!strTxHash.empty()) {
 		// Let's find it
 		uint256 txHash(strTxHash);
-        int outputIndex = boost::lexical_cast<int>(strOutputIndex);
+        int outputIndex = 0;
+        try
+        {
+            outputIndex = std::stoi(strOutputIndex.c_str());
+        }
+        catch (const std::exception& e)
+        {
+                LogPrintf("%s: %s on strOutputIndex\n", __func__, e.what());
+                return false;
+        }
+
 		bool found = false;
 		BOOST_FOREACH(COutput& out, possibleCoins) {
 			if(out.tx->GetHash() == txHash && out.i == outputIndex) {

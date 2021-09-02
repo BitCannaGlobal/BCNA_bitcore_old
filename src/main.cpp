@@ -106,19 +106,11 @@ static unsigned int nMarutiryV2 = 119;
 const int targetReadjustment_forkBlockHeight = 11550; //retargeting since 11550 block
 const int targetFork1 = 256963; // fork for new reward values
 const int targetFork2 = 710216; // for for new time drift
+const int targetForkFinal = 2286271;
 
 const int nHeightBlockReward2019 = 259112; // 10.2019-10.2020
-const int nHeightBlockReward2020 = 1310312; // 10.2020-10.2021
-const int nHeightBlockReward2021 = 2361512; // 10.2021-10.2022
-const int nHeightBlockReward2022 = 3412712; // 10.2022-10.2023
-const int nHeightBlockReward2023 = 4463912; // 10.2023-10.2024
-const int nHeightBlockReward2024 = 5515112; // 10.2024-10.2025
-const int nHeightBlockReward2025 = 6566312; // 10.2025-10.2026
-const int nHeightBlockReward2026 = 7617512; // 10.2026-10.2027
-const int nHeightBlockReward2027 = 8668712; // 10.2027-10.2028
-const int nHeightBlockReward2028 = 9719912; // 10.2028-10.2029
-const int nHeightBlockReward2029 = 10771112; // 10.2029-...
-
+const int nHeightBlockReward2020 = 1310312;
+const int nHeightBlockRewardFinal = 2286321;
 // Internal stuff
 namespace
 {
@@ -237,8 +229,10 @@ unsigned int GetnMaturity(int nHeight)
 
 int GetMinPeerProtoVersion(int nHeight)
 {
-    if (nHeight >= targetFork2)
+    if(nHeight >= targetForkFinal)
         return PROTOCOL_VERSION;
+    else if (nHeight >= targetFork2)
+        return PROTOCOL_VERSION_BEFORE_FORK3;
     else if (nHeight >= targetFork1)
         return PROTOCOL_VERSION_BEFORE_FORK2;
     else
@@ -1684,37 +1678,13 @@ CAmount GetProofOfStakeReward(int64_t nCoinAge, int64_t nFees, int nHeight)
     if(nHeight < nHeightBlockReward2019) {      // ...-10.2019
         nSubsidy = 4.8 * COIN;
     }
-    else if(nHeight < nHeightBlockReward2020) { // 10.2019-10.2020
+    else if(nHeight < nHeightBlockReward2020) {
         nSubsidy = 2.6 * COIN;
     }
-    else if(nHeight < nHeightBlockReward2021) { // 10.2020-10.2021
+    else if(nHeight < nHeightBlockRewardFinal) {
         nSubsidy = 2.4 * COIN;
     }
-    else if(nHeight < nHeightBlockReward2022) { // 10.2021-10.2022
-        nSubsidy = 2.1 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2023) { // 10.2022-10.2023
-        nSubsidy = 1.9 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2024) { // 10.2023-10.2024
-        nSubsidy = 1.6 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2025) { // 10.2024-10.2025
-        nSubsidy = 1.3 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2026) { // 10.2025-10.2026
-        nSubsidy = 1.1 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2027) { // 10.2026-10.2027
-        nSubsidy = 0.8 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2028) { // 10.2027-10.2028
-        nSubsidy = 0.5 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2029) { // 10.2028-10.2029
-        nSubsidy = 0.1 * COIN;
-    }
-    else {                                      // 10.2029-...
+    else {
         nSubsidy = 0.00000001 * COIN;
     }
 
@@ -1727,37 +1697,13 @@ CAmount GetTotalRewards(int nHeight, int64_t nFees)
     if(nHeight < nHeightBlockReward2019) {      // ...-10.2019
         nSubsidy = STATIC_POS_REWARD;
     }
-    else if(nHeight < nHeightBlockReward2020) { // 10.2019-10.2020
+    else if(nHeight < nHeightBlockReward2020) {
         nSubsidy = 6.6 * COIN;
     }
-    else if(nHeight < nHeightBlockReward2021) { // 10.2020-10.2021
-        nSubsidy = 6 * COIN;
+    else if(nHeight < nHeightBlockRewardFinal) {
+        nSubsidy = 6.0 * COIN;
     }
-    else if(nHeight < nHeightBlockReward2022) { // 10.2021-10.2022
-        nSubsidy = 5.2 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2023) { // 10.2022-10.2023
-        nSubsidy = 4.7 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2024) { // 10.2023-10.2024
-        nSubsidy = 4 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2025) { // 10.2024-10.2025
-        nSubsidy = 3.3 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2026) { // 10.2025-10.2026
-        nSubsidy = 2.7 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2027) { // 10.2026-10.2027
-        nSubsidy = 2 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2028) { // 10.2027-10.2028
-        nSubsidy = 1.3 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2029) { // 10.2028-10.2029
-        nSubsidy = 0.30000001 * COIN;
-    }
-    else {                                      // 10.2029-...
+    else {
         nSubsidy = 0.00000003 * COIN;
     }
 
@@ -1773,39 +1719,15 @@ CAmount GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCou
     else if(nHeight < nHeightBlockReward2020) { // 10.2019-10.2020
         nSubsidy = 3.3 * COIN;
     }
-    else if(nHeight < nHeightBlockReward2021) { // 10.2020-10.2021
+    else if(nHeight < nHeightBlockRewardFinal) {
         nSubsidy = 3.0 * COIN;
     }
-    else if(nHeight < nHeightBlockReward2022) { // 10.2021-10.2022
-        nSubsidy = 2.6 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2023) { // 10.2022-10.2023
-        nSubsidy = 2.3 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2024) { // 10.2023-10.2024
-        nSubsidy = 2.0 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2025) { // 10.2024-10.2025
-        nSubsidy = 1.7 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2026) { // 10.2025-10.2026
-        nSubsidy = 1.3 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2027) { // 10.2026-10.2027
-        nSubsidy = 1.0 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2028) { // 10.2027-10.2028
-        nSubsidy = 0.7 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2029) { // 10.2028-10.2029
-        nSubsidy = 0.2 * COIN;
-    }
-    else {                                      // 10.2029-...
+    else {
         nSubsidy = 0.00000001 * COIN;
     }
 
     return nSubsidy;
-}           
+}
 
 CAmount GetGovernancePayment(int nHeight)
 {
@@ -1813,39 +1735,15 @@ CAmount GetGovernancePayment(int nHeight)
     if(nHeight < nHeightBlockReward2019) {      // ...-10.2019
         nSubsidy = STATIC_GOVERNANCE_REWARD;
     }
-    else if(nHeight < nHeightBlockReward2020) { // 10.2019-10.2020
+    else if(nHeight < nHeightBlockReward2020) {
         nSubsidy = 0.7 * COIN;
     }
-    else if(nHeight < nHeightBlockReward2021) { // 10.2020-10.2021
+    else if(nHeight < nHeightBlockRewardFinal) {
         nSubsidy = 0.6 * COIN;
     }
-    else if(nHeight < nHeightBlockReward2022) { // 10.2021-10.2022
-        nSubsidy = 0.5 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2023) { // 10.2022-10.2023
-        nSubsidy = 0.5 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2024) { // 10.2023-10.2024
-        nSubsidy = 0.4 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2025) { // 10.2024-10.2025
-        nSubsidy = 0.3 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2026) { // 10.2025-10.2026
-        nSubsidy = 0.3 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2027) { // 10.2026-10.2027
-        nSubsidy = 0.2 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2028) { // 10.2027-10.2028
-        nSubsidy = 0.1 * COIN;
-    }
-    else if(nHeight < nHeightBlockReward2029) { // 10.2028-10.2029
+    else {
         nSubsidy = 0.00000001 * COIN;
     }
-    else {                                      // 10.2029-...
-        nSubsidy = 0.00000001 * COIN;
-    }           
 
     return nSubsidy;
 }
@@ -1859,7 +1757,7 @@ bool IsInitialBlockDownload()
     if (lockIBDState)
         return false;
     bool state = (chainActive.Height() < pindexBestHeader->nHeight - 24 * 6 ||
-                  pindexBestHeader->GetBlockTime() < GetTime() - 8 * 60 * 60); // ~144 blocks behind -> 2 x fork detection time
+                ((pindexBestHeader->GetBlockTime() < GetTime() - 8 * 60 * 60) && GetBoolArg("-testnet", false))); // ~144 blocks behind -> 2 x fork detection time
     if (!state)
         lockIBDState = true;
     return state;
@@ -2440,17 +2338,19 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
 
         // check PoS reward amount
-        if (pindex->nHeight > targetFork1 && pindex->nHeight < nHeightBlockReward2029
+        if (pindex->nHeight > targetFork1 && pindex->nHeight < nHeightBlockRewardFinal
+            && (coinStakeAmount != (block.vtx[1].vout[1].nValue + block.vtx[1].vout[2].nValue - nCalculatedPOSReward))
             && (coinStakeAmount != (block.vtx[1].vout[1].nValue + block.vtx[1].vout[2].nValue - nCalculatedPOSReward))
             && ((coinStakeAmount + 1) != (block.vtx[1].vout[1].nValue + block.vtx[1].vout[2].nValue - nCalculatedPOSReward)) 
             && ((coinStakeAmount + 1) != (block.vtx[1].vout[1].nValue - nCalculatedPOSReward))
         ) {
             LogPrintf("ConnectBlock() coinStakeAmount=%d \n", coinStakeAmount);
 
-            LogPrintf("ConnectBlock() block.vtx[1].vout[0].nValue=%d \n", block.vtx[1].vout[0].nValue);
-            LogPrintf("ConnectBlock() block.vtx[1].vout[1].nValue=%d \n", block.vtx[1].vout[1].nValue);
-            LogPrintf("ConnectBlock() block.vtx[1].vout[2].nValue=%d \n", block.vtx[1].vout[2].nValue);
-            LogPrintf("ConnectBlock() block.vtx[1].vout[3].nValue=%d \n", block.vtx[1].vout[3].nValue);
+            //LogPrintf("ConnectBlock() block.vtx[1].vout[0].nValue=%d \n", block.vtx[1].vout[0].nValue);
+            //LogPrintf("ConnectBlock() block.vtx[1].vout[1].nValue=%d \n", block.vtx[1].vout[1].nValue);
+            //LogPrintf("ConnectBlock() block.vtx[1].vout[2].nValue=%d \n", block.vtx[1].vout[2].nValue);
+            //LogPrintf("ConnectBlock() block.vtx[1].vout[3].nValue=%d \n", block.vtx[1].vout[3].nValue);
+            LogPrintf("PoS reward coinstake \n");
             //return error(
             //    "%s: PoS reward coinstake pays too much(coinStakeAmount=%d, block.vtx[1].vout[1].nValue=%d, block.vtx[1].vout[2].nValue=%d, nCalculatedPOSReward=%d)",
             //    __func__, coinStakeAmount, block.vtx[1].vout[1].nValue, block.vtx[1].vout[2].nValue, nCalculatedPOSReward
@@ -2968,7 +2868,6 @@ static bool ActivateBestChainStep(CValidationState& state, CBlockIndex* pindexMo
     std::vector<CBlockIndex*> vpindexToConnect;
     bool fContinue = true;
     int nHeight = pindexFork ? pindexFork->nHeight : -1;
-
     //while (fContinue && nHeight != pindexMostWork->nHeight) {
     while (fContinue && (nHeight < pindexMostWork->nHeight || nHeight == -1)) {
         // Don't iterate the entire list of potential improvements toward the best tip, as we likely only need
@@ -3012,7 +2911,6 @@ static bool ActivateBestChainStep(CValidationState& state, CBlockIndex* pindexMo
                 }
             }
         }
-        fContinue = false;
     }
 
     // Callbacks/notifications for a new best chain.
@@ -3036,6 +2934,8 @@ bool ActivateBestChain(CValidationState& state, CBlock* pblock)
 
     do {
         boost::this_thread::interruption_point();
+        if(ShutdownRequested())
+            break;
 
         bool fInitialDownload;
         while (true) {
@@ -3049,8 +2949,9 @@ bool ActivateBestChain(CValidationState& state, CBlock* pblock)
             pindexMostWork = FindMostWorkChain();
 
             // Whether we have anything to do at all.
-            //if (pindexMostWork == NULL || pindexMostWork == chainActive.Tip())
-            //    return true;
+            const bool isMostWork = (pindexMostWork == NULL || pindexMostWork == chainActive.Tip());
+            if(isMostWork)
+                return true;
 
             if (!ActivateBestChainStep(state, pindexMostWork, pblock && pblock->GetHash() == pindexMostWork->GetBlockHash() ? pblock : NULL))
                 return false;
@@ -3067,7 +2968,7 @@ bool ActivateBestChain(CValidationState& state, CBlock* pblock)
             uint256 hashNewTip = pindexNewTip->GetBlockHash();
             // Relay inventory, but don't relay old inventory during initial block download.
             int nBlockEstimate = Checkpoints::GetTotalBlocksEstimate();
-            {
+            if (nLocalServices & NODE_NETWORK) {
                 vector<CNode*> vNodesCopy;
                 {
                     LOCK(cs_vNodes);
@@ -3395,13 +3296,18 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
 
     auto const nBlockTimeLimit = GetAdjustedTime() + (block.IsProofOfStake() ? CalculateBlockTimeLimit(GetHeight()) : 7200);
 
-    LogPrint("debug", "%s: block=%s (%s %d %d)\n", __func__, block.GetHash().GetHex(), s,
-             block.GetBlockTime(), nBlockTimeLimit);
+    //LogPrint("debug", "%s: block=%s (%s %d %d)\n", __func__, block.GetHash().GetHex(), s, block.GetBlockTime(), nBlockTimeLimit);
 
     // Check block time, reject far future blocks.
     if (block.GetBlockTime() > nBlockTimeLimit)
         return state.Invalid(error("%s: block timestamp too far in the future", __func__),
             REJECT_INVALID, "time-too-new");
+
+    // debug code
+    if (block.GetBlockTime() > (nBlockTimeLimit - 14)) {
+        LogPrint("%s: block timestamp too far in the future", __func__);
+        LogPrint("%s: block=%s (%s %d %d)\n", __func__, block.GetHash().GetHex(), s, block.GetBlockTime(), nBlockTimeLimit);
+    }
 
     // Check the merkle root.
     if (fCheckMerkleRoot) {
@@ -4894,6 +4800,7 @@ static bool ProcessMessage(CNode* pfrom, const string &strCommand, CDataStream& 
             pfrom->nStartingHeight, addrMe.ToString(), pfrom->id,
             remoteAddr);
 
+        LogPrintf("Got version command from addr: %s\n", addrFrom.ToString());
         AddTimeData(pfrom->addr, nTime);
     }
 

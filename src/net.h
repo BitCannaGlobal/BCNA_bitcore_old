@@ -367,8 +367,10 @@ public:
 
     void Release()
     {
-        nRefCount--;
-        assert(nRefCount >= 0);
+        if(nRefCount > 0)
+            nRefCount--;
+        else
+            nRefCount = 0;
     }
 
 
